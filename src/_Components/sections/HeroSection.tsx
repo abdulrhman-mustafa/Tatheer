@@ -27,7 +27,7 @@ const HeroSection = () => {
           <h1 className='text-2xl md:text-5xl leading-tight xl:text-[80px] font-bold text-secondary'>The Right Campaign, With The Right Influencer</h1>
           <p className='text-sm text-place max-w-lg'>Tatheer is a platform that simplifies influencer marketing-advertisers create campaigns, influencers promote them, and get paid per quality clicks</p>
           <div className="btn flex items-center">
-            <Button className=' text-xs max-w-xs md:text-base' onClick={() => router.push('/about-us')} >About us</Button>
+            <Button className=' text-xs w-full md:max-w-xs md:text-base' onClick={() => router.push('/about-us')} >About us</Button>
           </div>
         </div>
         {/* IMAGE CONTAINER */}

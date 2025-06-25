@@ -4,6 +4,7 @@ import {InfluencersSection} from "@/_Components/sections/InfluencersSection";
 import {CustomerOpinionsSection} from "@/_Components/sections/CustomerOpinionsSection";
 import {FAQSection} from "@/_Components/sections/FAQSection";
 import {FooterSection} from "@/_Components/sections/Footer";
+import {ScrollToTopButton} from "@/_Components/common/ScrollToTopButton";
 
 
 export default function Home() {
@@ -15,6 +16,7 @@ export default function Home() {
       <CustomerOpinionsSection />
       <FAQSection />
       <FooterSection />
+      <ScrollToTopButton />
     </>
   );
 }
