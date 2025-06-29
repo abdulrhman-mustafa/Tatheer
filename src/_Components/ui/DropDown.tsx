@@ -57,7 +57,7 @@ const disabledClasses = disabled ? 'bg-gray-100 cursor-not-allowed opacity-70' :
                     className={`appearance-none ${baseClasses ?? ""} ${disabledClasses} ${errorClasses}`} 
                 >
                     {placeholder && (
-                        <option value={value} disabled selected hidden>
+                        <option value='' disabled hidden>
                             {placeholder}
                         </option>
                     )}

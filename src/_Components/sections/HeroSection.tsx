@@ -14,6 +14,7 @@ const HeroSection = () => {
           alt="layer Image"
           width={120}
           height={120}
+          priority
         />
         <Image
           className="absolute hidden lg:block lg:left-[60%] top-16  object-contain"
@@ -21,6 +22,7 @@ const HeroSection = () => {
           alt="layer Image"
           width={80}
           height={80}
+          priority
         />
         {/* TEXT CONTAINER */}
         <div className="content flex-1 flex justify-center flex-col gap-8 max-w-[650px]">

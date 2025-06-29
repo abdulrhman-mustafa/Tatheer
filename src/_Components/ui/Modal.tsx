@@ -8,6 +8,7 @@ interface ModalProps {
     children: React.ReactNode;
     title?: string;
     className?: string;
+    describtion?: string
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -16,6 +17,7 @@ export const Modal: React.FC<ModalProps> = ({
     children,
     title,
     className,
+    describtion
 }) => {
 
     const modalContentRef = useRef<HTMLDivElement>(null);
@@ -60,7 +62,6 @@ return (
         <div
             ref={modalContentRef}
             className={contentClasses}
-            // click on modal no close , if click on overlay close
             onClick={(e) => e.stopPropagation()}
         >
             {/* Icon */}
@@ -76,6 +77,13 @@ return (
                 <h2 className="text-xl font-bold text-secondary">
                     {title}
                 </h2>
+            )}
+
+            {/* Describtion */}
+            {describtion && (
+                <p className="text-base text-center text-place">
+                    {describtion}
+                </p>
             )}
 
             {/* Children*/}

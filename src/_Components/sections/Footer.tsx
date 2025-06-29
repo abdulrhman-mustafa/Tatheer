@@ -4,10 +4,10 @@ import Image from "next/image";
 
 export const FooterSection: React.FC = () => {
 const socialLinks = [
-{ name: "Facebook", href: "#", icon: "/linkedin.svg" },
-{ name: "Twitter", href: "#", icon: "/insta.svg" },
-{ name: "Instagram", href: "#", icon: "/behance.svg" },
-{ name: "LinkedIn", href: "#", icon: "/dribble.svg" },
+    { name: "Facebook", href: "#", icon: "/linkedin.svg" },
+    { name: "Twitter", href: "#", icon: "/insta.svg" },
+    { name: "Instagram", href: "#", icon: "/behance.svg" },
+    { name: "LinkedIn", href: "#", icon: "/dribble.svg" },
 ];
 
 const currentYear = new Date().getFullYear();

@@ -43,7 +43,7 @@ const mockFAQs: FAQ[] = [
 
 function Icon({ id, open }: { id: string | number; open: string | number }) {
   return (
-    <div className="bg-primary rounded-full  items-center justify-center hidden md:flex p-0.5">
+    <div className="bg-primary rounded-full  items-center justify-center flex p-0.5">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
@@ -52,7 +52,7 @@ function Icon({ id, open }: { id: string | number; open: string | number }) {
         stroke="currentColor"
         className={`${
           id === open ? "rotate-180" : ""
-        } transition-transform text-white w-5 h-5 hidden md:flex`}
+        } transition-transform text-white w-5 h-5 `}
       >
         <path
           strokeLinecap="round"
@@ -83,14 +83,15 @@ export const FAQSection: React.FC = () => {
             <Accordion
               key={faq.id}
               open={openQuestionId === faq.id} 
-              icon={<Icon id={faq.id} open={openQuestionId} />}
+              
               className="bg-input rounded-sm overflow-hidden p-2"
             >
               <AccordionHeader
-                className="text-md font-normal px-4 py-3 text-secondary flex items-center"
+                className="text-md font-normal px-4 py-3 text-secondary flex items-start sm:items-center gap-2"
                 onClick={() => handleOpen(faq.id)} 
               >
                 {faq.question}
+                <Icon id={faq.id} open={openQuestionId} />
               </AccordionHeader>
 
               <AccordionBody className="px-4 pb-4 pt-0 text-gray-600"> 

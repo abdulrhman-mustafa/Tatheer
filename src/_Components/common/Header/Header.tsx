@@ -10,10 +10,10 @@ import { useRouter } from "next/navigation";
 // import { UserMenu } from '@/components/common/Header/UserMenu';
 
 interface HeaderProps {
-isAuthenticated: boolean;
-userType?: "advertiser" | "influencer";
-userName?: string;
-userAvatarUrl?: string;
+    isAuthenticated: boolean;
+    userType?: "advertiser" | "influencer";
+    userName?: string;
+    userAvatarUrl?: string;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -27,12 +27,12 @@ const router = useRouter();
 const navLinkClasses = `text-place hover:text-secondary font-medium transition-colors duration-200 ?? ""`;
 
 return (
-    <header className=" py-4 px-4 md:px-10 flex items-center justify-between">
+    <header className=" py-4 px-4 md:px-10 hidden md:flex  items-center justify-between">
     {/* left side */}
     <div className="flex items-center space-x-8">
         <div className="logo">
         <Link href="/">
-            <Image src="/logo.png" alt="Your App Logo" width={40} height={40} />
+            <Image src="/logo.svg" alt="Your App Logo" width={40} height={40} />
         </Link>
         </div>
     </div>
@@ -137,7 +137,7 @@ return (
         </>
         ) : (
         <div className="flex space-x-2">
-            <Button onClick={() => router.push("/sign-in")} className="px-2">
+            <Button onClick={() => router.push("/login")} className="px-2">
             Sign In
             </Button>
         </div>

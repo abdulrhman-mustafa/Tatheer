@@ -22,7 +22,7 @@ export const Checkbox: React.FC<CheckBoxProps> = ({
         border-1 border-place
         bg-primary
         ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-        ${checked ? 'accent-primary' : ''}
+        ${checked ? 'accent-primary'  : ''}
         ${className || ''}
     `
     const labelClasses = `

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Lexend } from 'next/font/google';
 import './globals.css';
-import Header from "@/_Components/common/Header/Header";
+import 'react-phone-input-2/lib/style.css';
 
 
 export const metadata: Metadata = {
@@ -22,7 +22,6 @@ export default function RootLayout({
     
     <html lang="en" className={lexend.className}>
       <body  className="font-lexend">
-        <Header isAuthenticated={false}/>
         {children}
       </body>
     </html>
