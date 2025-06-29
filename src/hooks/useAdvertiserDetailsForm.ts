@@ -22,8 +22,6 @@ const initialContactInfo = searchParams.get("initialContactInfo") || "";
 const initialIsPhoneNumber =
     searchParams.get("initialIsPhoneNumber") === "true";
 const secondaryContactInfo = searchParams.get("secondaryContactInfo") || "";
-const secondaryIsPhoneNumber =
-    searchParams.get("secondaryIsPhoneNumber") === "true";
 
 // **تم تعديل هذا السطر:** الإعلان عن personalName كحالة باستخدام useState
 const [personalName, setPersonalName] = useState<string>(

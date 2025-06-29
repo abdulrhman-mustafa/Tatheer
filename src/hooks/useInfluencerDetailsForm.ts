@@ -1,10 +1,7 @@
-// src/hooks/useInfluencerDetailsForm.ts
-
 import { useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { mockUsers, InfluencerProfile } from "@/data/mockData"; // استيراد بيانات المستخدمين وواجهة InfluencerProfile
+import { mockUsers, InfluencerProfile } from "@/data/mockData";
 
-// تعريف الاهتمامات المتاحة والمنصات الاجتماعية كما في التصميم
 const AVAILABLE_INTERESTS = [
   "Sport",
   "Beauty",
@@ -15,10 +12,11 @@ const AVAILABLE_INTERESTS = [
   "Culture",
   "Kids",
 ];
+
 const SOCIAL_MEDIA_PLATFORMS = [
   { name: "Youtube", icon: "/youtube.svg" },
   { name: "Instagram", icon: "/instagram.svg" },
-  { name: "X", icon: "/x.svg" }, // Twitter is now X
+  { name: "X", icon: "/x.svg" },
   { name: "Facebook", icon: "/facebook.svg" },
   { name: "Snapchat", icon: "/snapchat.svg" },
   { name: "Linkedin", icon: "/linkedin.svg" },
@@ -29,7 +27,7 @@ interface UseInfluencerDetailsFormReturn {
   initialContactInfo: string;
   initialIsPhoneNumber: boolean;
   secondaryContactInfo: string;
-  secondaryIsPhoneNumber: boolean;
+  attrSecondaryIsPhoneNumber: boolean;
   selectedInterests: string[];
   gender: string;
   age: string;
@@ -58,16 +56,12 @@ export const useInfluencerDetailsForm = (): UseInfluencerDetailsFormReturn => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // جلب جميع البيانات التي تم تمريرها من الخطوات السابقة
   const personalName = searchParams.get("personalName") || "";
   const initialContactInfo = searchParams.get("initialContactInfo") || "";
   const initialIsPhoneNumber =
     searchParams.get("initialIsPhoneNumber") === "true";
   const secondaryContactInfo = searchParams.get("secondaryContactInfo") || "";
-  const secondaryIsPhoneNumber =
-    searchParams.get("secondaryIsPhoneNumber") === "true";
 
-  // حالات النموذج
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [gender, setGender] = useState<string>("");
   const [age, setAge] = useState<string>("");
@@ -75,11 +69,10 @@ export const useInfluencerDetailsForm = (): UseInfluencerDetailsFormReturn => {
   const [bankName, setBankName] = useState<string>("");
   const [ibanNumber, setIbanNumber] = useState<string>("");
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
-  const [showMoreDetails, setShowMoreDetails] = useState<boolean>(false); // لطي/توسيع قسم التفاصيل الإضافية
+  const [showMoreDetails, setShowMoreDetails] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  // دوال معالجة التغييرات في الحقول
   const handleInterestToggle = useCallback((interest: string) => {
     setSelectedInterests((prev) =>
       prev.includes(interest)
@@ -135,7 +128,6 @@ export const useInfluencerDetailsForm = (): UseInfluencerDetailsFormReturn => {
     setShowMoreDetails((prev) => !prev);
   }, []);
 
-  // دالة التحقق من صحة النموذج قبل الإرسال
   const validateForm = useCallback((): string => {
     if (selectedInterests.length === 0) {
       return "Please select at least one interest.";
@@ -147,7 +139,6 @@ export const useInfluencerDetailsForm = (): UseInfluencerDetailsFormReturn => {
       return "Please select your age.";
     }
 
-    // التحقق من حقول تفاصيل البنك إذا كانت مرئية (اختياري)
     if (showMoreDetails) {
       if (beneficiaryName.trim().length < 3) {
         return "Beneficiary Name is required and must be at least 3 characters.";
@@ -155,9 +146,7 @@ export const useInfluencerDetailsForm = (): UseInfluencerDetailsFormReturn => {
       if (bankName.trim().length < 3) {
         return "Bank Name is required and must be at least 3 characters.";
       }
-      // يمكن إضافة regex للتحقق من IBAN
       if (ibanNumber.trim().length === 0) {
-        // بسيطة لغير فارغ
         return "IBAN Number is required.";
       }
       if (selectedPlatforms.length === 0) {
@@ -177,11 +166,10 @@ export const useInfluencerDetailsForm = (): UseInfluencerDetailsFormReturn => {
     selectedPlatforms,
   ]);
 
-  // دالة معالجة إرسال النموذج (التسجيل النهائي للمؤثر)
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-      setErrorMessage(""); // مسح أي رسائل خطأ سابقة
+      setErrorMessage("");
 
       const error = validateForm();
       if (error) {
@@ -190,38 +178,33 @@ export const useInfluencerDetailsForm = (): UseInfluencerDetailsFormReturn => {
       }
       setLoading(true);
 
-      // بناء كائن المؤثر النهائي
       const newInfluencer: InfluencerProfile = {
-        id: `user-${mockUsers.length + 1}-${Date.now()}`, // توليد ID فريد وهمي
+        id: `user-${mockUsers.length + 1}-${Date.now()}`,
         name: personalName,
-        email: initialIsPhoneNumber ? secondaryContactInfo : initialContactInfo, // الإيميل هو الذي ليس رقم هاتف
+        email: initialIsPhoneNumber ? secondaryContactInfo : initialContactInfo,
         phoneNumber: initialIsPhoneNumber
           ? initialContactInfo
-          : secondaryContactInfo, // رقم الهاتف هو الذي هو رقم هاتف
-        role: "influencer", // الدور المحدد
+          : secondaryContactInfo,
+        role: "influencer",
         niches: selectedInterests,
         socialMediaLinks: selectedPlatforms.map((platform) => ({
-          // بناء روابط وهمية مؤقتة
           platform: platform,
-          url: `https://www.${platform.toLowerCase()}.com/user`, // URL وهمي
-          followers: 0, // يمكن إضافة حقل للمتابعين لاحقًا
+          url: `https://www.${platform.toLowerCase()}.com/user`,
+          followers: 0,
           icon:
-            SOCIAL_MEDIA_PLATFORMS.find((p) => p.name === platform)?.icon || "", // أيقونة المنصة
+            SOCIAL_MEDIA_PLATFORMS.find((p) => p.name === platform)?.icon || "",
         })),
-        engagementRate: 0, // قيمة افتراضية
-        // تفاصيل البنك إذا كانت موجودة
+        engagementRate: 0,
         beneficiaryName: showMoreDetails ? beneficiaryName : undefined,
         bankName: showMoreDetails ? bankName : undefined,
         ibanNumber: showMoreDetails ? ibanNumber : undefined,
       };
 
-      // إضافة المؤثر الجديد إلى mockUsers (محاكاة قاعدة البيانات)
       mockUsers.push(newInfluencer);
       console.log("New Influencer registered:", newInfluencer);
 
       setTimeout(() => {
         setLoading(false);
-        // التوجيه إلى لوحة تحكم المؤثر بعد التسجيل النهائي
         router.push(`/influencer/opportunities?role=influencer`);
       }, 1500);
     },
@@ -231,7 +214,6 @@ export const useInfluencerDetailsForm = (): UseInfluencerDetailsFormReturn => {
       initialContactInfo,
       initialIsPhoneNumber,
       secondaryContactInfo,
-      secondaryIsPhoneNumber,
       selectedInterests,
       gender,
       age,
@@ -249,7 +231,7 @@ export const useInfluencerDetailsForm = (): UseInfluencerDetailsFormReturn => {
     initialContactInfo,
     initialIsPhoneNumber,
     secondaryContactInfo,
-    attrSecondaryIsPhoneNumber: secondaryIsPhoneNumber, // Changed name to avoid conflict with `secondaryIsPhoneNumberInput` for ContactInputField
+    attrSecondaryIsPhoneNumber: searchParams.get("secondaryIsPhoneNumber") === "true",
     selectedInterests,
     gender,
     age,

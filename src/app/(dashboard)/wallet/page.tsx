@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
 
 import Back from "@/_Components/auth/Back";
 import { Button } from "@/_Components/ui/Button";
@@ -13,7 +12,6 @@ import Modal from "@/_Components/ui/Modal";
 import { mockTransactions } from "@/data/mockData"; 
 
 export default function WalletPage() {
-    const router = useRouter();
 
     // حالة الرصيد الحالي (يمكن جلبها من الـ mockUsers إذا كان لديك حقل رصيد)
     const [currentBalance, setCurrentBalance] = useState(12255.0);

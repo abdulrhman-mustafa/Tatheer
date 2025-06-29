@@ -2,8 +2,6 @@
 
 import { useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-// تم تصحيح مسار الاستيراد هنا
-import { mockUsers, User } from '@/data/mockData'; // <-- هذا هو المسار الصحيح
 
 interface UseSelectRoleLogicReturn {
   handleRoleSelection: (role: 'advertiser' | 'influencer') => void;
