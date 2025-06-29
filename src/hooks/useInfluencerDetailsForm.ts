@@ -215,8 +215,6 @@ export const useInfluencerDetailsForm = (): UseInfluencerDetailsFormReturn => {
       initialIsPhoneNumber,
       secondaryContactInfo,
       selectedInterests,
-      gender,
-      age,
       beneficiaryName,
       bankName,
       ibanNumber,

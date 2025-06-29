@@ -11,7 +11,7 @@ import BottomNavBar from '@/_Components/dashboard/BottomNavBar';
 import EarningCard from '@/_Components/dashboard/EarningCard';
 
 // تأكد من مسار mockData الخاص بك
-import { mockUsers, mockCampaigns, mockTransactions, AdvertiserProfile } from '@/data/mockData'; // تم إعادته إلى @/lib/mockUsers
+import { mockUsers, mockCampaigns, AdvertiserProfile } from '@/data/mockData'; // تم إعادته إلى @/lib/mockUsers
 
 export default function InfluencerEarningsPage() {
   const pathname = usePathname();

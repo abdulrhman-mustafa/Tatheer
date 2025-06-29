@@ -157,7 +157,7 @@ export default function VerifyOtpPage() {
           Please check your {isPhoneNumber ? "Number" : "email"}
         </h2>
         <p className="text-gray-600 text-center mb-8">
-          We've sent a code to <span className="font-semibold text-primary">{contactInfo}</span>
+          We&apos;ve sent a code to <span className="font-semibold text-primary">{contactInfo}</span>
         </p>
 
         <form onSubmit={handleVerifyOtp} className="w-full space-y-6">
