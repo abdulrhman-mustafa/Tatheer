@@ -6,14 +6,14 @@ import 'react-phone-input-2/lib/style.css';
 
 interface CustomPhoneInputProps {
   value: string;
-  onChange: (value: string, data: any) => void;
+  onChange: (value: string, data: Record<string, unknown>) => void;
   onValidate?: (isValid: boolean, fullNumber: string, isEmptyOrCountryCode: boolean) => void;
   id: string;
   label?: string;
   placeholder?: string;
   disabled?: boolean;
   error?: string | boolean;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 const CustomPhoneInput: React.FC<CustomPhoneInputProps> = ({
@@ -28,7 +28,7 @@ const CustomPhoneInput: React.FC<CustomPhoneInputProps> = ({
   ...props
 }) => {
 
-  const handlePhoneInputChange = (phone: string, countryData: any) => {
+  const handlePhoneInputChange = (phone: string, countryData: Record<string, unknown>) => {
     const countryCode = `+${countryData.dialCode}`;
     const isEmptyOrCountryCode = !phone || phone === countryCode || phone.trim() === '';
 

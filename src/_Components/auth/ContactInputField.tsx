@@ -20,8 +20,6 @@ const ContactInputField: React.FC<ContactInputFieldProps> = ({
   contactInfoValue, 
   setContactInfoValue, 
   isPhoneNumberInput, 
-  setIsPhoneNumberInput, 
-  setErrorMessage,
   handlePhoneInputValidate,
   errorMessage,
   onInputChange 

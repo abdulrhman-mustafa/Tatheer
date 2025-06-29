@@ -10,7 +10,7 @@ return (
             Forgot Password?
         </Link>
         <p className="text-gray-600 text-sm">
-                Don't have an account?{' '}
+                Don&apos;t have an account?{' '}
             <Link href="/auth/register/select-type" className="text-primary hover:underline">
                 Sign Up
             </Link>

@@ -9,35 +9,30 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string | boolean;
 }
 
-// استخدام React.forwardRef للسماح بتمرير ref إلى عنصر <input> الداخلي
-export const Input = React.forwardRef<HTMLInputElement, InputProps>(
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
   (
     { id, label, type = "text", placeholder, error, className, ...rest },
     ref
   ) => {
-    // دمج الـ className الممرر مع الـ classes الأساسية
     const baseClasses = `
-        w-full
-        px-5 py-3
-        rounded-sm
-        bg-input
-        placeholder-place
-        border-0
-        focus:ring-1
-        outline-none
-        transition-all duration-200
-        ${className || ""}
+      w-full
+      px-5 py-3
+      rounded-sm
+      bg-input
+      placeholder-place
+      border-0
+      focus:ring-1
+      outline-none
+      transition-all duration-200
+      ${className || ""}
     `;
 
-    // تم تصحيح "border-scondary" إلى "border-secondary" هنا
     const errorClasses = error
       ? "border border-red-500 focus:ring-red-500"
       : "border-secondary focus:ring-primary/50 focus:border-primary";
 
     return (
       <div className="mb-4">
-        {" "}
-        {/* Container للحقل والـ label ورسالة الخطأ */}
         {label && (
           <label
             htmlFor={id}
@@ -63,5 +58,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     );
   }
 );
+
+Input.displayName = "Input";
 
 export default Input;
