@@ -9,6 +9,7 @@ interface ModalProps {
     title?: string;
     className?: string;
     describtion?: string
+    iconSrc?: string;
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -17,7 +18,8 @@ export const Modal: React.FC<ModalProps> = ({
     children,
     title,
     className,
-    describtion
+    describtion,
+    iconSrc
 }) => {
 
     const modalContentRef = useRef<HTMLDivElement>(null);
@@ -65,12 +67,16 @@ return (
             onClick={(e) => e.stopPropagation()}
         >
             {/* Icon */}
-            <Image 
-                src="/IconWrapper.png" 
-                alt="iconWrapper" 
-                className='mx-auto' 
-                width={64} height={64} 
-                onClick={onClose}
+            <Image
+                    src={iconSrc || "/IconWrapper.png"}
+                    alt="Modal Icon"
+                    className='mx-auto'
+                    width={64}
+                    height={64}
+                    onClick={onClose}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = `https://placehold.co/64x64/E2E8F0/A0AEC0?text=?`; // Fallback for missing icon
+                    }}
             />
             {/* Title*/}
             {title && (

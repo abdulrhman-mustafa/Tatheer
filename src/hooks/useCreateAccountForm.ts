@@ -1,4 +1,4 @@
-// src/hooks/useCreateAccountForm.ts
+"use client";
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';

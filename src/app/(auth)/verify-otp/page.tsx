@@ -9,7 +9,7 @@ import Back from '@/_Components/auth/Back';
 import ResendCodeSection from '@/_Components/auth/ResendCodeSection'; 
 import OtpField from '@/_Components/auth/OtpFileds'; 
 
-import { Button } from "@/_Components/ui/Button"; 
+import  Button  from "@/_Components/ui/Button"; 
 
 export default function VerifyOtpPage() {
   const router = useRouter();

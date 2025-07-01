@@ -16,7 +16,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 }) => {
 return (
     <>
-    {/* Mobile Top Dashboard Bar */}
     <div className="p-4 flex items-center justify-between">
         <div className="flex items-center space-x-3">
         <Image
@@ -27,7 +26,7 @@ return (
             className="object-cover"
             onError={(e) => {
             (e.target as HTMLImageElement).src =
-                "/avatar.svg";
+                `/avatar.svg`;
             }}
         />
         <div>
@@ -35,7 +34,7 @@ return (
             <p className="text-sm text-place">Tatheer App</p>
         </div>
         </div>
-        <button>
+        <button className="relative">
             <Image 
                 src="/notification.svg" 
                 alt="Notification Icon" 
@@ -43,7 +42,7 @@ return (
                 className="object-cover"
             />
             {notificationsCount > 0 && (
-                <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none bg-red-600 rounded-full">
+                <span className="absolute top-2 right-2 items-center justify-center px-2 py-1 text-xs font-bold leading-none bg-red-600 text-white rounded-full">
                     {notificationsCount}
                 </span>
             )}

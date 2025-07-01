@@ -1,7 +1,7 @@
 // src/components/auth/OtpInputFields.tsx
 
 import React, { useRef } from 'react';
-import { Input } from '@/_Components/ui/Input'; // تأكد من المسار الصحيح لمكون Input
+import Input  from '@/_Components/ui/Input'; // تأكد من المسار الصحيح لمكون Input
 
 interface OtpInputFieldsProps {
   otpDigits: string[];
@@ -44,6 +44,7 @@ const OtpInputFields: React.FC<OtpInputFieldsProps> = ({ otpDigits, setOtpDigits
     <div className="flex justify-center space-x-3 mb-6">
       {otpDigits.map((digit, index) => (
         <Input
+          id={`otp-digit-${index}`}
           key={index}
           // ربط الـ ref الخاص بكل حقل إدخال
           ref={(el: HTMLInputElement) => {
@@ -54,9 +55,9 @@ const OtpInputFields: React.FC<OtpInputFieldsProps> = ({ otpDigits, setOtpDigits
           value={digit}
           onChange={(e) => handleOtpDigitChange(index, e)}
           onKeyDown={(e) => handleKeyDown(index, e)}
-          // Tailwind CSS classes for styling
-          className="w-12 h-12 bg-gray-100 text-center rounded-lg text-2xl font-bold border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-light"
-          inputMode="numeric" // تلميح للمتصفحات لإظهار لوحة المفاتيح الرقمية
+
+          className="w-12 h-12 bg-gray-100 text-center rounded-lg text-2xl font-bold border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary"
+          inputMode="numeric"
           autoComplete={index === 0 ? "one-time-code" : "off"} // لخاصية التعبئة التلقائية لأكواد OTP
         />
       ))}

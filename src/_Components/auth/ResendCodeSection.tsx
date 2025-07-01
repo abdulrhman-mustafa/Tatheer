@@ -23,21 +23,20 @@ const ResendCodeSection: React.FC<ResendCodeSectionProps> = ({
     <div className="gap-1"> 
       <p className="text-sm text-primary flex items-center">
         Didn’t receive the {isPhoneNumber ? "OTP" : "Email"}?
-        <Button
-          type="button"
-          variant="link"
-          onClick={handleResendCode}
-          disabled={!canResend || loading} 
-          className="ml-1 text-primary font-medium"
-        >
-          Click here
-        </Button>
+          <Button
+            type="button"
+            variant="link"
+            onClick={handleResendCode}
+            disabled={!canResend || loading} 
+            className=" text-secondary font-medium"
+          >
+            Click here
+          </Button>
       </p>
-
       {!canResend && (
-        <p className="text-sm text-gray-400 ">
-          Please wait for <span className="text-primary font-semibold">{timer} seconds</span>
-        </p>
+          <p className="text-sm text-secondary ">
+            Please wait for <span className="text-red-500 font-semibold">{timer} seconds</span>
+          </p>
       )}
     </div>
   );

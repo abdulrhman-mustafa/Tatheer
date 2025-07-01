@@ -2,81 +2,136 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-
-import Back from '@/_Components/auth/Back';
-import { Button } from '@/_Components/ui/Button'; // تم إعادة استيراد Button هنا
+import SearchBar from '@/_Components/dashboard/SearchBar'; 
 import BottomNavBar from '@/_Components/dashboard/BottomNavBar';
 import EarningCard from '@/_Components/dashboard/EarningCard';
-
-// تأكد من مسار mockData الخاص بك
-import { mockUsers, mockCampaigns, AdvertiserProfile } from '@/data/mockData'; // تم إعادته إلى @/lib/mockUsers
+import Back from '@/_Components/auth/Back';
+import { mockUsers, mockCampaigns, AdvertiserProfile } from '@/data/mockData';
+import { timeAgo } from '@/utils/timeAgo';
+import { EarningCardData } from '@/types/earning'; // <--- تمت الإضافة: استيراد الواجهة
 
 export default function InfluencerEarningsPage() {
   const pathname = usePathname();
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  // استخدام الواجهة المحددة بدلاً من 'any'
+  const [clientEarningsData, setClientEarningsData] = useState<EarningCardData[]>([]);
+  // حالة لتتبع الكروت المحددة
+  const [selectedEarnings, setSelectedEarnings] = useState<Set<string>>(new Set());
 
-  // دالة لمعالجة طلب السحب لكل بطاقة
-  const handleWithdrawalRequest = (earningId: string) => {
+
+  const showToastMessage = useCallback((message: string) => {
+    setToastMessage(message);
+    setShowToast(true);
+    const timer = setTimeout(() => {
+      setShowToast(false);
+      setToastMessage('');
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleWithdrawalRequest = useCallback((earningId: string) => {
+    // <--- تم تصحيح الـ template literals هنا
     console.log(`Withdrawal Request button clicked for earning ID: ${earningId}`);
-    alert(`Withdrawal request initiated for earning ID: ${earningId} (mock).`);
-  };
+    showToastMessage(`Withdrawal request initiated for earning ID: ${earningId} (mock).`);
+  }, [showToastMessage]);
 
-  // محاكاة بيانات الأرباح
-  const earningsData = mockCampaigns.map(campaign => {
-    const advertiser = mockUsers.find(u => u.id === campaign.advertiserId) as AdvertiserProfile | undefined;
-    const currentFixedPrice = campaign.budget / 10; // مثال: 10% من ميزانية الحملة كربح
+  // دالة لمعالجة تحديد/إلغاء تحديد الكارت
+  const handleSelectEarning = useCallback((earningId: string) => {
+    setSelectedEarnings(prevSelected => {
+      const newSelected = new Set(prevSelected);
+      if (newSelected.has(earningId)) {
+        newSelected.delete(earningId);
+      } else {
+        newSelected.add(earningId);
+      }
+      return newSelected;
+    });
+  }, []);
 
-    return {
-      id: campaign.id,
-      brandLogoUrl: advertiser?.brandLogoUrl || '/images/logos/default-brand-logo.png',
-      brandHeadline: "Your skin deserves the best",
-      productName: campaign.title,
-      description: campaign.description,
-      postedTime: `Posted ${Math.floor(Math.random() * 60) + 1} minutes ago`,
-      imageUrl: campaign.imageUrl || '/images/campaigns/default-product.png',
-      clickCount: Math.floor(Math.random() * 5000) + 100,
-      postedSinceDays: Math.floor(Math.random() * 30) + 1,
-      fixedPrice: currentFixedPrice,
-      isWithdrawalPossible: currentFixedPrice >= 100, // تحديد ما إذا كان السحب ممكنًا (>= 100)
-    };
-  });
+  // Use useMemo for the base data that is static from mockCampaigns/mockUsers
+  const baseEarningsData = useMemo(() => {
+    return mockCampaigns.map(campaign => {
+      const advertiser = mockUsers.find(u => u.id === campaign.advertiserId) as AdvertiserProfile | undefined;
+
+      const currentFixedPrice = campaign.budget / 10; 
+
+      return {
+        id: campaign.id,
+        brandLogoUrl: advertiser?.brandLogoUrl || '/images/logos/default-brand-logo.png',
+        brandHeadline: advertiser?.brandTagline || "Default Brand Tagline",
+        productName: campaign.title,
+        description: campaign.description,
+        createdAt: campaign.createdAt, // Pass raw createdAt date for client-side processing
+        earningCardImageUrl: campaign.earningCardImageUrl || '/images/earnings/default-earning.jpg',
+        clickCount: Math.floor(Math.random() * 5000) + 100,
+        fixedPrice: currentFixedPrice,
+        isWithdrawalPossible: currentFixedPrice >= 100,
+      };
+    });
+  }, []); // إضافة dependencies لتجنب التحذيرات
+
+  // Use useEffect to calculate and set client-specific data AFTER hydration
+  useEffect(() => {
+    const updatedEarnings: EarningCardData[] = baseEarningsData.map(earning => ({
+      ...earning,
+      postedTime: timeAgo(earning.createdAt), // Calculate timeAgo only on the client
+    }));
+    setClientEarningsData(updatedEarnings);
+  }, [baseEarningsData]);
+
+  const filteredEarningsData = useMemo(() => {
+    return clientEarningsData.filter(earning =>
+      earning.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      earning.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      earning.brandHeadline.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [clientEarningsData, searchTerm]);
 
   return (
-    <div className="flex flex-col items-center  p-4 text-secondary">
-      {/* Top Bar - Back Button and Title */}
-      <div className="w-full max-w-md flex justify-between items-center mb-8 mt-4">
-        <Back />
-        <h1 className="text-xl font-medium text-center flex-grow">My Earnings</h1>
+    <div className="flex flex-col min-h-screen text-secondary pb-16 md:pb-0">
+      <div className="md:hidden p-4">
+        <div className=" flex justify-between items-center mt-4">
+            <Back/>
+            <h1 className="text-xl font-medium text-center flex-grow">My Earnings</h1>
+        </div>
+        <SearchBar
+          placeholder="Search earnings"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className='md:w-full'
+        />
       </div>
 
-      {/* Earnings Cards Section */}
-      <div className="flex-grow p-4 space-y-6">
-        {earningsData.map((earning) => (
-          <React.Fragment key={earning.id}> {/* استخدام Fragment لتجميع البطاقة والزر */}
+      <div className="flex-grow p-4 space-y-6 md:grid md:grid-cols-2 xl:grid-cols-3 gap-6 md:space-y-0">
+        {filteredEarningsData.length > 0 ? (
+          filteredEarningsData.map((earning) => (
             <EarningCard
               key={earning.id}
               {...earning}
+              onWithdrawalRequest={handleWithdrawalRequest}
+              // <--- تمت الإضافة: تمرير isSelected و onSelect
+              isSelected={selectedEarnings.has(earning.id)}
+              onSelect={() => handleSelectEarning(earning.id)}
             />
-            {/* Withdrawal Request Button - الآن خارج البطاقة ومكرر لكل منها */}
-            <div className=" -mt-4 mb-2"> {/* -mt-4 لسحب الزر لأعلى قليلاً ليكون أقرب للبطاقة */}
-              <Button
-                onClick={() => handleWithdrawalRequest(earning.id)}
-                size='medium'
-                className="w-full"
-                disabled={!earning.isWithdrawalPossible} // تعطيل الزر إذا لم يكن السحب ممكنًا
-              >
-                Withdrawal Request
-              </Button>
-              {!earning.isWithdrawalPossible && (
-                <p className="text-center text-xs text-place mt-2">over $100</p>
-              )}
-            </div>
-          </React.Fragment>
-        ))}
+          ))
+        ) : (
+          <p className="col-span-full text-center text-lg text-gray-500 mt-8">
+            No earnings found matching your search.
+          </p>
+        )}
       </div>
 
       <BottomNavBar activePath={pathname} />
+
+      {showToast && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg z-50 transition-opacity duration-300">
+          {toastMessage}
+        </div>
+      )}
     </div>
   );
 }

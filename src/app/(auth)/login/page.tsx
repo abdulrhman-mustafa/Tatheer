@@ -4,23 +4,20 @@
 
 import React from 'react'; 
 
-// استيراد المكونات المقسمة
 import WelcomeHeader from '@/_Components/auth/WelcomeHeader'; 
 import ContactInputField from '@/_Components/auth/ContactInputField'; 
 
 import Button from '@/_Components/ui/Button'; 
 import Back from '@/_Components/auth/Back'; 
 
-// استيراد الخطاف المخصص الجديد
 import { useLoginForm } from '@/hooks/useLoginForm';
 
 export default function LoginPage() {
-  // استخدام الخطاف المخصص للحصول على جميع الحالات والدوال
   const {
     contactInfoValue,
     setContactInfoValue,
     isPhoneNumberInput,
-    setIsPhoneNumberInput, // يمكن استخدامها إذا أردت تغييرها يدويا
+    setIsPhoneNumberInput,
     errorMessage,
     loading,
     handleInputChange,
@@ -39,17 +36,11 @@ export default function LoginPage() {
           setContactInfoValue={setContactInfoValue}
           isPhoneNumberInput={isPhoneNumberInput}
           setIsPhoneNumberInput={setIsPhoneNumberInput}
-          setErrorMessage={() => {}} // الخطاف يدير رسائل الخطأ، لذا نمرر دالة فارغة أو نلغي الحاجة إليها هنا
+          setErrorMessage={() => {}}
           handlePhoneInputValidate={handlePhoneInputValidate}
           errorMessage={errorMessage}
           onInputChange={handleInputChange}
         />
-
-        {errorMessage && (
-          <p className="text-red-500 text-xs italic mt-2 text-center">
-            {errorMessage}
-          </p>
-        )}
 
         <Button 
           type="submit" 
@@ -58,7 +49,7 @@ export default function LoginPage() {
           disabled={loading}
           loading={loading}
         >
-          {loading ? 'Processing' : 'Continue'} 
+          {loading ? 'continue' : 'Send Verification'} 
         </Button>
       </form>
     </div>

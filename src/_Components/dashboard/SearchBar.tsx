@@ -1,46 +1,42 @@
 // src/_Components/dashboard/SearchBar.tsx
 
-import React from "react";
-import { ChangeEvent } from "react";
-import Input from "@/_Components/ui/Input";
-import Image from "next/image";
+'use client';
+
+import React from 'react';
+import Image from 'next/image';
+import Input from '@/_Components/ui/Input';
 
 interface SearchBarProps {
-    placeholder?: string;
     value: string;
-    onChange: (e: ChangeEvent<HTMLInputElement>) => void;
-    className?: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    placeholder?: string;
+    className?: string; 
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({
-    placeholder = "Search",
     value,
     onChange,
+    placeholder = "Search...",
     className,
 }) => {
 return (
-    // هذا شريط البحث سيظهر فقط في الموبايل بناءً على التصميم
-    <div
-        className={`mt-4 mx-4 rounded-sm ${
-        className || ""
-    }`}
-    >
-        <div className="relative">
-            <Image
-                src="/search.svg"
-                alt="Search Icon"
-                width={25}  
-                height={25}
-                className="absolute left-2 top-3"
-            />
-            <Input
-                id="search-input"
-                type="text"
-                placeholder={placeholder}
-                value={value}
-                onChange={onChange}
-                className="pl-10"
-            />
+    <div className={`p-4 ${className}`}>
+        <div className="relative w-full">
+        <Input
+            id='search'
+            className="pl-10"
+            type="text"
+            placeholder={placeholder}
+            value={value}
+            onChange={onChange}
+        />
+        <Image 
+            src="/search.svg"
+            alt="Search Icon"
+            width={20}
+            height={20}
+            className="absolute left-3 top-1/2 transform -translate-y-1/2"
+        />
         </div>
     </div>
 );

@@ -1,14 +1,15 @@
 // src/hooks/useLoginForm.ts
 
+"use client";
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { mockUsers, User } from '@/data/mockData'; // استيراد بيانات المستخدمين الوهمية
+import { mockUsers, User } from '@/data/mockData';
 
 interface UseLoginFormReturn {
   contactInfoValue: string;
   setContactInfoValue: (value: string) => void;
-  isPhoneNumberInput: boolean;
-  setIsPhoneNumberInput: (value: boolean) => void; // يمكن استخدامه لتغيير النوع يدويا إذا لزم الأمر
+  isPhoneNumberInput: boolean; // هذا سيتحكم في عرض CustomPhoneInput
+  setIsPhoneNumberInput: (value: boolean) => void;
   errorMessage: string;
   loading: boolean;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -16,71 +17,71 @@ interface UseLoginFormReturn {
   handleSubmit: (e: React.FormEvent) => Promise<void>;
 }
 
-// الخطاف المخصص لإدارة منطق نموذج تسجيل الدخول
 export const useLoginForm = (): UseLoginFormReturn => {
   const router = useRouter();
 
-  // حالات النموذج
   const [contactInfoValue, setContactInfoValue] = useState<string>('');
-  const [isPhoneNumberInput, setIsPhoneNumberInput] = useState<boolean>(false);
+  const [isPhoneNumberInput, setIsPhoneNumberInput] = useState<boolean>(false); // يبدأ بـ false
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
 
-  // حالات CustomPhoneInput
   const [isPhoneValid, setIsPhoneValid] = useState<boolean>(false);
   const [fullPhoneNumber, setFullPhoneNumber] = useState<string>('');
 
-  // دالة handleInputChange لتحديد نوع الإدخال
+  // دالة handleInputChange لتحديد نوع الإدخال بناءً على المنطق الجديد
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setContactInfoValue(value);
     setErrorMessage('');
 
-    if (value.includes('@')) {
+    // المنطق الجديد للتحول الديناميكي:
+    // 1. الأولوية القصوى: إذا كان الإدخال فارغًا تمامًا أو يحتوي على '@'، فهو ليس رقم هاتف (يعود للايميل).
+    if (value.trim().length === 0 || value.includes('@')) {
       setIsPhoneNumberInput(false);
-    } else if (value.trim().length === 0) {
-      setIsPhoneNumberInput(false);
-    } else if (/^[a-zA-Z]/.test(value)) {
-      setIsPhoneNumberInput(false);
-    } else {
+    }
+    // 2. إذا كان الإدخال يبدأ بـ '+' متبوعًا بأرقام (على الأقل رقم واحد)،
+    //    أو يتكون من أرقام فقط (على الأقل 3 أرقام).
+    //    هذا يمنع التحول الفوري عند كتابة رقم واحد فقط.
+    else if (/^\+\d+$/.test(value) || /^\d{3,}$/.test(value)) {
       setIsPhoneNumberInput(true);
     }
-  }, []); // لا توجد تبعيات داخلية
+    // 3. في أي حالة أخرى (يحتوي على أحرف أبجدية بدون '@' أو رموز أخرى)، فهو ليس رقم هاتف.
+    else {
+      setIsPhoneNumberInput(false);
+    }
+  }, []);
 
   const handlePhoneInputValidate = useCallback((isValid: boolean | undefined, fullNumber: string) => {
-    setIsPhoneValid(isValid === undefined ? true : isValid);
+    setIsPhoneValid(isValid === undefined ? false : isValid);
     setFullPhoneNumber(fullNumber);
-  }, []); // لا توجد تبعيات داخلية
+  }, []);
 
-  // دالة التحقق من صحة النموذج
   const validateForm = useCallback((): string => {
-    const valueToValidate = isPhoneNumberInput ? fullPhoneNumber : contactInfoValue.trim();
+    const valueTrimmed = contactInfoValue.trim();
 
-    if (!valueToValidate) {
+    if (!valueTrimmed) {
       return 'Input cannot be empty.';
     }
 
     if (isPhoneNumberInput) {
+      // إذا كان isPhoneNumberInput صحيحًا (أي CustomPhoneInput معروض)، تحقق من صحة رقم الهاتف
       if (!isPhoneValid) {
         return 'Please enter a valid phone number.';
       }
-      if (valueToValidate.length < 8) {
-        return 'Phone number is too short.';
-      }
     } else {
+      // إذا كان isPhoneNumberInput خاطئًا (أي Input العادي معروض)، تحقق من صحة البريد الإلكتروني
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(valueToValidate)) {
+      if (!emailRegex.test(valueTrimmed)) {
         return 'Please enter a valid email address.';
       }
     }
     return '';
-  }, [contactInfoValue, isPhoneNumberInput, isPhoneValid, fullPhoneNumber]);
+  }, [contactInfoValue, isPhoneNumberInput, isPhoneValid]);
 
-  // دالة معالجة إرسال النموذج
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const error = validateForm();
+    const error = validateForm(); // Validate based on current `isPhoneNumberInput` state
     if (error) {
       setErrorMessage(error);
       return;
@@ -88,15 +89,15 @@ export const useLoginForm = (): UseLoginFormReturn => {
     setErrorMessage('');
     setLoading(true);
 
+    // استخدم الحالة الحالية لـ isPhoneNumberInput لتحديد معلومات الاتصال النهائية
     const finalContactInfo = isPhoneNumberInput ? fullPhoneNumber : contactInfoValue.trim();
 
-    // التحقق مما إذا كان المستخدم مسجلًا بالفعل باستخدام mockUsers
     const foundUser: User | undefined = mockUsers.find(
       user => {
         if (isPhoneNumberInput) {
           return user.phoneNumber === finalContactInfo;
         } else {
-          return user.email.toLowerCase() === finalContactInfo.toLowerCase();
+          return user.email?.toLowerCase() === finalContactInfo.toLowerCase();
         }
       }
     );
@@ -104,18 +105,16 @@ export const useLoginForm = (): UseLoginFormReturn => {
     if (foundUser) {
       console.log(`User ${foundUser.email || foundUser.phoneNumber} (Role: ${foundUser.role}) found. Redirecting to dashboard.`);
       setLoading(false);
-      router.push(`/dashboard?role=${foundUser.role}`);
+      router.push(`/influencer/opportunities?role=${foundUser.role}`);
     } else {
       console.log(`User ${finalContactInfo} not found. Simulating OTP send for registration.`);
       setTimeout(() => {
         setLoading(false);
-        // توجيه المستخدمين الجدد إلى صفحة التحقق من الـ OTP، مع تحديد المصدر كـ 'login'
         router.push(`/verify-otp?contactInfo=${encodeURIComponent(finalContactInfo)}&isPhoneNumber=${isPhoneNumberInput}&source=login`);
       }, 1500);
     }
   }, [validateForm, contactInfoValue, isPhoneNumberInput, fullPhoneNumber, router]);
 
-  // نُرجع جميع الحالات والدوال التي سيحتاجها المكون
   return {
     contactInfoValue,
     setContactInfoValue,

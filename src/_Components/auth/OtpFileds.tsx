@@ -1,7 +1,7 @@
 // src/components/auth/OtpField.tsx
 
 import React, { useRef, useEffect } from 'react';
-import { Input } from '@/_Components/ui/Input'; 
+import  Input  from '@/_Components/ui/Input'; 
 
 interface OtpFieldProps { 
   otpDigits: string[];
@@ -77,6 +77,7 @@ const OtpField: React.FC<OtpFieldProps> = ({ otpDigits, setOtpDigits, setErrorMe
     <div className="flex justify-center space-x-3 mb-6">
       {otpDigits.map((digit, index) => (
         <Input
+          id='otp'
           key={index}
           // **التعديل هنا:** تأكد من أننا نخصص العنصر في موقعه الصحيح داخل المصفوفة
           ref={(el: HTMLInputElement) => {

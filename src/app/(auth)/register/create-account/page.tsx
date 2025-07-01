@@ -10,7 +10,7 @@ import ContactInputField from '@/_Components/auth/ContactInputField';
 import Input from '@/_Components/ui/Input';
 import Button from '@/_Components/ui/Button';
 
-// استيراد الخطاف المخصص الجديد
+
 import { useCreateAccountForm } from '@/hooks/useCreateAccountForm';
 
 export default function CreateAccountPage() {
@@ -27,8 +27,6 @@ export default function CreateAccountPage() {
     handleSecondaryInputChange,
     handleSecondaryPhoneInputValidate,
     handleSubmit,
-    initialContactInfo,
-    initialIsPhoneNumber,
   } = useCreateAccountForm();
 
   return (

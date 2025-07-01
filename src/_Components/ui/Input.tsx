@@ -32,7 +32,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       : "border-secondary focus:ring-primary/50 focus:border-primary";
 
     return (
-      <div className="mb-4">
+      <div className="w-full">
         {label && (
           <label
             htmlFor={id}

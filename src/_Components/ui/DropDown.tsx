@@ -1,85 +1,146 @@
-import Image from "next/image";
-export type DropdownOption = {
-    value: string;
-    label: string;
-};
+// src/_Components/ui/DropDown.tsx
+
+"use client";
+
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { twMerge } from 'tailwind-merge';
+
+// تعريف واجهة الخيارات
+export interface DropdownOption {
+  value: string;
+  label: string;
+  // يمكنك إضافة أيقونة هنا إذا أردت عرض أيقونات بجانب الخيارات
+  // icon?: string;
+}
+
 interface DropDownProps {
-    id: string;
-    label: string;
-    placeholder?: string;
-    name: string;
-    disabled?: boolean;
-    className?: string;
-    value?: string | number;
-    onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-    options: DropdownOption[];
-    error?: string;
+  id: string;
+  label: string;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void; // ستبقى هذه الواجهة لتوافق الخطاف
+  options: DropdownOption[];
+  placeholder?: string;
+  error?: string;
+  className?: string; // فئات إضافية للمكون الرئيسي
 }
-export const DropDown : React.FC<DropDownProps> = ({ 
-    id,
-    label,
-    options,
-    placeholder,
-    error,
-    disabled = false,
-    className,
-    value,
-    onChange, 
+
+const DropDown: React.FC<DropDownProps> = ({
+  id,
+  label,
+  name,
+  value,
+  onChange,
+  options,
+  placeholder,
+  error,
+  className,
 }) => {
-    const baseClasses = `
-    w-full
-    px-5 py-3
-    rounded-sm
-    bg-input
-    text-three
-    placeholder-place
-    border-0
-    focus:ring-1
-    outline-none
-    transition-all duration-200
-    ${className || ''}
-    
-`;
-const errorClasses = error ? 'border-danger focus:ring-danger/50' : 'focus:ring-primary/50 focus:border-primary';
-const disabledClasses = disabled ? 'bg-gray-100 cursor-not-allowed opacity-70' : '';
-    return(
-        <div>
-            {label && (
-                <label htmlFor={id} className="block text-secondary mb-4">
-                    {label}
-                </label>
-            )}
-            <div className="relative">
-                <select 
-                    id={id} 
-                    value={value}  
-                    onChange={onChange} 
-                    className={`appearance-none ${baseClasses ?? ""} ${disabledClasses} ${errorClasses}`} 
-                >
-                    {placeholder && (
-                        <option value='' disabled hidden>
-                            {placeholder}
-                        </option>
-                    )}
-                    {options?.map((option) => (
-                        <option  className="space-y-2" key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                </select>
-                    <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-place">
-                        <Image 
-                            src="/arrow-select.png" 
-                            alt="Arrow Select" 
-                            width={22} 
-                            height={22} 
-                        />
-                    </div>
-            </div>
-                {error && (
-                    <p className="mt-1 text-sm text-danger">
-                        {error}
-                    </p>
-                )}
-        </div>
-    )
-}
-export default DropDown
+  const [isOpen, setIsOpen] = useState(false);
+  // القيمة المعروضة في حقل الإدخال (label وليس value)
+  const [displayValue, setDisplayValue] = useState<string>(
+    options.find(option => option.value === value)?.label || placeholder || ''
+  );
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // تحديث القيمة المعروضة عندما تتغير قيمة الـ prop
+  useEffect(() => {
+    setDisplayValue(options.find(option => option.value === value)?.label || placeholder || '');
+  }, [value, options, placeholder]);
+
+  // إغلاق القائمة عند النقر خارجها
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleSelect = useCallback((optionValue: string, optionLabel: string) => {
+    // إنشاء حدث تغيير اصطناعي ليتوافق مع واجهة onChange في الخطاف
+    const syntheticEvent = {
+      target: {
+        id: id,
+        name: name,
+        value: optionValue,
+      },
+    } as React.ChangeEvent<HTMLSelectElement>; // Cast to the expected event type
+
+    onChange(syntheticEvent);
+    setDisplayValue(optionLabel);
+    setIsOpen(false);
+  }, [id, name, onChange]);
+
+  return (
+    <div className={twMerge("relative", className)} ref={dropdownRef}>
+      <label htmlFor={id} className="text-base font-normal block mb-3 text-secondary">
+        {label}
+      </label>
+      <div
+        id={id}
+        className={twMerge(
+          "flex items-center justify-between w-full px-5 py-3 rounded-sm bg-input cursor-pointer border",
+          error ? 'border-red-500' : 'border-transparent',
+          'focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all duration-200'
+        )}
+        onClick={() => setIsOpen(!isOpen)}
+        role="combobox"
+        aria-controls="dropdown-list"
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
+        aria-labelledby={`${id}-label`}
+      >
+        <span className={twMerge("text-base font-normal", displayValue === placeholder ? 'text-place' : 'text-secondary')}>
+          {displayValue}
+        </span>
+        <svg
+          className={twMerge(
+            "h-5 w-5 text-gray-700 transform transition-transform duration-300",
+            isOpen ? 'rotate-180' : 'rotate-0'
+          )}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+
+      {isOpen && (
+        <ul
+          className="absolute z-10 w-full bg-white border border-gray-200 rounded-md shadow-lg mt-1 max-h-60 overflow-auto"
+          role="listbox"
+          aria-labelledby={`${id}-label`}
+        >
+          {options.map((option) => (
+            <li
+              key={option.value}
+              onClick={() => handleSelect(option.value, option.label)}
+              className={twMerge(
+                "px-5 py-3 cursor-pointer hover:bg-gray-100 transition-colors duration-100",
+                value === option.value ? 'bg-primary text-white hover:bg-primary-dark' : 'text-secondary'
+              )}
+              role="option"
+              aria-selected={value === option.value}
+            >
+              {/* إذا كان لديك أيقونات في المستقبل، يمكنك عرضها هنا */}
+              {/* {option.icon && <Image src={option.icon} alt="" width={20} height={20} className="mr-2" />} */}
+              {option.label}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {error && (
+        <p className="text-red-500 text-xs italic mt-2">{error}</p>
+      )}
+    </div>
+  );
+};
+
+export default React.memo(DropDown); // استخدام React.memo لتحسين الأداء

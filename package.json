@@ -12,6 +12,7 @@
     "@material-tailwind/react": "^2.1.10",
     "firebase": "^11.9.1",
     "flag-icon-css": "^4.1.7",
+    "libphonenumber-js": "^1.12.9",
     "motion": "^12.19.1",
     "next": "15.3.4",
     "react": "^19.0.0",

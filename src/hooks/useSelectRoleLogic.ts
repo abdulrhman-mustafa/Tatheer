@@ -1,4 +1,4 @@
-// src/hooks/useSelectRoleLogic.ts
+"use client";
 
 import { useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';

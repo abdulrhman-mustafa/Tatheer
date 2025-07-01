@@ -1,84 +1,102 @@
-// src/_Components/dashboard/CampaignCard.tsx
 
-import React from "react";
-import Image from "next/image";
-import { Campaign } from "@/data/mockData";
-import Button from "../ui/Button";
+
+import React from 'react';
+import Image from 'next/image';
+import Button from '@/_Components/ui/Button';
+import { timeAgo } from '@/utils/timeAgo';
+
+interface Campaign {
+    id: string;
+    title: string;
+    description: string;
+    imageUrl?: string;
+    createdAt: string;
+    platforms: { name: string; icon: string; isActive: boolean }[];
+}
 
 interface CampaignCardProps {
-campaign: Campaign;
-advertiserLogoUrl: string; // رابط شعار المعلن
-onParticipateClick: (campaignId: string) => void; // دالة عند النقر على زر المشاركة
+    campaign: Campaign;
+    advertiserLogoUrl: string;
+    brandTagline: string;
+    onParticipateClick: (campaignId: string) => void;
 }
 
 const CampaignCard: React.FC<CampaignCardProps> = ({
-campaign,
-advertiserLogoUrl,
-onParticipateClick,
+    campaign,
+    advertiserLogoUrl,
+    brandTagline,
+    onParticipateClick,
 }) => {
+    const postedTime = timeAgo(campaign.createdAt);
 return (
-    <div className="rounded-sm p-4 border border-place">
-        <div className="flex justify-between items-start mb-3">
-            <div className="flex items-center space-x-3">
-            {/* Brand Logo */}
+    <div className="rounded-sm flex flex-col h-full border border-place p-4">
+        <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center">
                 <Image
-                    src={advertiserLogoUrl || ""}
+                    src={advertiserLogoUrl}
                     alt="Brand Logo"
-                    width={40}
-                    height={40}
-                    className="object-cover"
-                    onError={(e) => {
-                    (e.target as HTMLImageElement).src =
-                        "avatar.svg";
-                    }}
+                    width={24}
+                    height={24}
+                    className="rounded-full mr-4 object-cover"
                 />
-                <div>
-                    <p className="text-sm font-normal text-secondary">
-                        Your skin deserves the best
-                    </p>
-                    <p className="text-xs text-primary">{campaign.title}</p>
+                <div className="flex flex-col">
+                    <p className="text-base font-normal text-secondary">{brandTagline}</p>
+                    <p className="text-base font-normal text-primary">{campaign.title}</p>
                 </div>
             </div>
-            <button>
+            {/* Share Icon */}
+            <button className="">
                 <Image
-                    src="/share.svg"
-                    alt="Share Icon"
-                    width={25}
-                    height={25}
-                    className="object-cover"
-                    onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                        "share.svg";
-                    }}
+                src="/icons/share.svg"
+                alt="Share"
+                width={20}
+                height={20}
+                className="object-cover"
                 />
             </button>
         </div>
+        
 
-        <p className="text-sm text-secondary mb-3">{campaign.description}</p>
 
-        {/* Campaign Images */}
-        <div className="mb-4">
+
+
+      {/* Content Section */}
+    <div className="flex flex-col flex-grow space-y-4">
+        <p className="text-md text-secondary font-semibold line-clamp-2">{campaign.description}</p>
+        <p className="text-md text-place mt-auto font-normal">Posted {postedTime}</p>
+        
+        {/* Platforms */}
+        
+        <div className="relative w-full h-40">
             <Image
-                src={campaign.imageUrl || "/food.svg"}
+                src={campaign.imageUrl || '/food.svg'}
                 alt={campaign.title}
-                width={300}
-                height={200}
-                className="rounded-sm object-cover w-full h-auto"
-                onError={(e) => {
-                    (e.target as HTMLImageElement).src =
-                    "/food.svg";
-                }}
+                layout="fill"
+                objectFit="cover"
+                className='rounded-sm'
             />
         </div>
+        <div className="flex flex-wrap gap-2 mb-4">
+            {campaign.platforms.map((platform) => (
+                <div key={platform.name} className="flex items-center justify-center bg-input rounded-full px-2 py-2">
+                    <Image
+                        src={platform.icon}
+                        alt={platform.name}
+                        width={16}
+                        height={16}
+                    />
+                    
+                </div>
+            ))}
+        </div>
 
-        <Button
-            onClick={() => onParticipateClick(campaign.id)}
-            size="medium"
-            className="w-full"
-        >
-            Participate
-        </Button>
+            <div className="mt-auto"> 
+                <Button onClick={() => onParticipateClick(campaign.id)} className="w-full">
+                    Participate
+                </Button>
+            </div>
     </div>
+</div>
 );
 };
 
