@@ -219,7 +219,7 @@ export default function InfluencerDetailsPage() {
           <Button
             type="submit"
             variant="primary"
-            className="w-full rounded-lg py-3 mt-8"
+            className="w-full rounded-sm py-3 mt-8"
             disabled={loading}
             loading={loading}
           >

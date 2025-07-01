@@ -44,11 +44,11 @@ export default function LoginPage() {
           <Button
             type="submit"
             variant="primary"
-            className="w-full rounded-lg py-3"
+            className="w-full py-3"
             disabled={loading}
             loading={loading}
           >
-            {loading ? 'Logging In...' : 'Login'}
+            {loading ? 'Send Verification' : 'Login'}
           </Button>
         </form>
       </div>

@@ -1,11 +1,7 @@
-'use client'; 
 import React from 'react'
-import { Button } from '@/_Components/ui/Button';
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
-
 const HeroSection = () => {
-  const router = useRouter();
+
   return (
     <section className='flex flex-col lg:flex-row justify-between items-center pt-16 md:py-4 px-4 md:px-10'>
         <Image
@@ -28,9 +24,6 @@ const HeroSection = () => {
         <div className="content flex-1 flex justify-center flex-col gap-8 max-w-[650px]">
           <h1 className='text-2xl md:text-5xl leading-tight xl:text-[80px] font-bold text-secondary'>The Right Campaign, With The Right Influencer</h1>
           <p className='text-sm text-place max-w-lg'>Tatheer is a platform that simplifies influencer marketing-advertisers create campaigns, influencers promote them, and get paid per quality clicks</p>
-          <div className="btn flex items-center">
-            <Button className=' text-xs w-full md:max-w-xs md:text-base' onClick={() => router.push('/about-us')} >About us</Button>
-          </div>
         </div>
         {/* IMAGE CONTAINER */}
       <div className="flex-1 flex my-5 justify-center items-center">

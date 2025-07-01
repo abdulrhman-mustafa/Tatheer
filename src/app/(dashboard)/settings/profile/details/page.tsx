@@ -1,51 +1,91 @@
-"use client";
+// src/app/(dashboard)/settings/profile/details/page.tsx
 
-import React, { useState, useEffect, FormEvent } from "react";
-import { useRouter } from "next/navigation";
+'use client';
 
-import Back from "@/_Components/auth/Back";
-import Input from "@/_Components/ui/Input";
-import Button from "@/_Components/ui/Button";
-import ContactInputField from "@/_Components/auth/ContactInputField";
+import React, { useState, useEffect, FormEvent, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import Back from '@/_Components/auth/Back';
+import Input from '@/_Components/ui/Input';
+import Button from '@/_Components/ui/Button';
+// تم إزالة استيراد DropDown و Checkbox لأنها لم تعد مستخدمة
+import ContactInputField from '@/_Components/auth/ContactInputField';
 import Image from "next/image";
 
-import { mockUsers, User } from "@/data/mockData";
+import { mockUsers, InfluencerProfile } from '@/data/mockData';
 
-export default function EditProfilePage() {
+export default function EditProfilePage() { 
   const router = useRouter();
 
   const currentUserId = "user-3";
-  const currentUser = mockUsers.find((user) => user.id === currentUserId) as User | undefined;
+  const currentUser = mockUsers.find((user) => user.id === currentUserId) as InfluencerProfile | undefined;
 
+  // حالات النموذج - فقط الاسم، رقم الهاتف، والبريد الإلكتروني
   const [name, setName] = useState(currentUser?.name || "");
   const [phoneNumber, setPhoneNumber] = useState(currentUser?.phoneNumber || "");
   const [email, setEmail] = useState(currentUser?.email || "");
+  
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [isPhoneValid, setIsPhoneValid] = useState<boolean | undefined>(true);
-  const [isPhoneNumberInput, setIsPhoneNumberInput] = useState<boolean>(true);
+  const [showToast, setShowToast] = useState(false); 
+  const [toastMessage, setToastMessage] = useState(''); 
+
+  // حالات CustomPhoneInput
+  const [isPhoneNumberInput, setIsPhoneNumberInput] = useState<boolean>(!!currentUser?.phoneNumber);
+  const [isPhoneValid, setIsPhoneValid] = useState<boolean>(true);
 
   useEffect(() => {
-    if (currentUser) {
-      setName(currentUser.name);
-      setPhoneNumber(currentUser.phoneNumber || "");
-      setEmail(currentUser.email);
+    if (currentUser?.phoneNumber) {
+      setIsPhoneNumberInput(true);
+    } else {
+      setIsPhoneNumberInput(false);
     }
   }, [currentUser]);
 
-  const handlePhoneInputValidate = (isValid: boolean | undefined, fullNumber: string) => {
+  const showToastMessage = useCallback((message: string) => {
+    setToastMessage(message);
+    setShowToast(true);
+    const timer = setTimeout(() => {
+      setShowToast(false);
+      setToastMessage('');
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleContactInfoChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setErrorMessage("");
+
+    if (isPhoneNumberInput) {
+      setPhoneNumber(value);
+    } else {
+      setEmail(value);
+    }
+
+    // منطق التحول بين الإيميل والهاتف
+    // يمكن تبسيطه أكثر إذا كان التبديل يتم فقط عبر زر "Edit"
+    if (value.includes('@')) {
+      setIsPhoneNumberInput(false);
+    } else if (/^\+\d+$/.test(value) || /^\d{3,}$/.test(value)) {
+      setIsPhoneNumberInput(true);
+    } else {
+      setIsPhoneNumberInput(false);
+    }
+  }, [isPhoneNumberInput]);
+
+  const handlePhoneInputValidate = useCallback((fullNumber: string, isValid: boolean) => {
+    setPhoneNumber(fullNumber);
     setIsPhoneValid(isValid);
     setErrorMessage(isValid ? "" : "Please enter a valid phone number.");
-    setPhoneNumber(fullNumber);
-  };
+  }, []);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = useCallback((e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setErrorMessage("");
 
+    // منطق التحقق من صحة النموذج - فقط الاسم، رقم الهاتف، والبريد الإلكتروني
     if (!name.trim()) {
-      setErrorMessage("Please fill in all fields.");
+      setErrorMessage("Name is required.");
       setLoading(false);
       return;
     }
@@ -64,25 +104,32 @@ export default function EditProfilePage() {
       }
     }
 
+    // هنا يمكنك إرسال البيانات المحدثة إلى backend
     if (currentUser) {
       const userIndex = mockUsers.findIndex((user) => user.id === currentUserId);
       if (userIndex !== -1) {
-        mockUsers[userIndex] = {
-          ...mockUsers[userIndex],
-          name,
-          phoneNumber,
-          email,
+        // تحديث البيانات في mockUsers (هذا للتجربة فقط، في تطبيق حقيقي سترسلها إلى API)
+        const updatedUser: InfluencerProfile = {
+          ...(mockUsers[userIndex] as InfluencerProfile),
+          name: name,
+          // تحديث الإيميل أو رقم الهاتف بناءً على isPhoneNumberInput
+          email: isPhoneNumberInput ? currentUser.email : email,
+          phoneNumber: isPhoneNumberInput ? phoneNumber : currentUser.phoneNumber,
+          // إزالة تحديث الحقول الأخرى
         };
+        mockUsers[userIndex] = updatedUser;
         console.log("Profile updated (mock):", mockUsers[userIndex]);
       }
     }
 
     setTimeout(() => {
       setLoading(false);
-      alert("Profile updated successfully (mock)!");
+      showToastMessage("Profile updated successfully!");
       router.back();
     }, 1500);
-  };
+  }, [name, phoneNumber, email, isPhoneNumberInput, isPhoneValid, currentUser, showToastMessage, router]);
+
+  // تم إزالة خيارات DropDown و Interests و Social Media Platforms و Bank Details لأنها لم تعد مستخدمة
 
   return (
     <div className="p-4 text-secondary md:bg-gray-50 md:rounded-sm">
@@ -98,9 +145,13 @@ export default function EditProfilePage() {
           variant="outline"
           size="small"
           onClick={() => {
-            setIsPhoneNumberInput(!isPhoneNumberInput);
+            setIsPhoneNumberInput(prev => !prev);
             setErrorMessage("");
-            setPhoneNumber("");
+            if (isPhoneNumberInput) {
+              setEmail("");
+            } else {
+              setPhoneNumber("");
+            }
           }}
         >
           Edit
@@ -109,6 +160,7 @@ export default function EditProfilePage() {
             alt="Edit"
             width={16}
             height={16}
+            onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/16x16/E2E8F0/A0AEC0?text=E`; }}
           />
         </Button>
       </div>
@@ -121,38 +173,47 @@ export default function EditProfilePage() {
           placeholder="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          error={errorMessage && !name.trim() ? "Name is required" : undefined}
+          error={errorMessage.includes('Name is required') ? errorMessage : undefined}
         />
 
+        {/* حقل معلومات الاتصال (الهاتف/البريد الإلكتروني) */}
         <ContactInputField
-          contactInfoValue={phoneNumber}
-          setContactInfoValue={setPhoneNumber}
+          contactInfoValue={isPhoneNumberInput ? phoneNumber : email}
           isPhoneNumberInput={isPhoneNumberInput}
-          setIsPhoneNumberInput={setIsPhoneNumberInput}
-          setErrorMessage={setErrorMessage}
-          handlePhoneInputValidate={handlePhoneInputValidate}
-          errorMessage={errorMessage}
-          onInputChange={(e) => setEmail(e.target.value)}
+          onInputChange={handleContactInfoChange}
+          onPhoneInputValidate={handlePhoneInputValidate}
+          errorMessage={
+            errorMessage.includes('email') || errorMessage.includes('phone number') || errorMessage.includes('contact information')
+              ? errorMessage : ''
+          }
         />
 
-        <Input
-          id="email"
-          placeholder="Email Address"
-          label="Emali Address"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        {/* رسائل الخطأ العامة */}
+        {errorMessage && (
+          <p className="text-red-500 text-xs italic mt-2 text-center col-span-full">
+            {errorMessage}
+          </p>
+        )}
+
+        {/* زر الحفظ */}
         <Button
           type="submit"
           variant="primary"
           size="medium"
-          className="w-full md:hidden"
+          className="w-full md:col-span-full py-3 mt-8"
           disabled={loading}
           loading={loading}
         >
-          {loading ? "Saving" : "Continue"}
+          {loading ? "Saving Changes..." : "Save Changes"}
         </Button>
       </form>
+
+      {/* Toast Notification */}
+      {showToast && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg z-50 transition-opacity duration-300">
+          {toastMessage}
+        </div>
+      )}
     </div>
   );
 }

@@ -53,7 +53,6 @@ const CustomPhoneInput: React.FC<CustomPhoneInputProps> = ({
     return countries.find(c => val.startsWith(c.phoneCode));
   };
 
-  // تهيئة الحالة الأولية بناءً على قيمة الـ prop `value`
   const [selectedCountry, setSelectedCountry] = useState<Country>(() => {
     const countryFromValue = findCountryByPhoneCodePrefix(value);
     return countryFromValue || countries.find(c => c.code === "ps") || countries[0];
@@ -64,32 +63,29 @@ const CustomPhoneInput: React.FC<CustomPhoneInputProps> = ({
     return countryFromValue ? value.replace(countryFromValue.phoneCode, '') : value;
   });
 
-  const prevValueRef = useRef(value); // لتتبع القيمة السابقة لـ `value` prop
-  const isMounted = useRef(false); // لتتبع ما إذا كان المكون قد تم تركيبه لأول مرة
+  const prevValueRef = useRef(value);
+  const isMounted = useRef(false);
 
-  // دالة للتحقق من صحة رقم الهاتف
-  const validatePhoneNumber = useCallback((phone: string, phoneCode: string): boolean => {
+  // تم إزالة 'phoneCode' من وسائط الدالة لأنها غير مستخدمة
+  const validatePhoneNumber = useCallback((phone: string): boolean => { 
     const cleanedPhone = phone.replace(/\D/g, ''); 
-    return cleanedPhone.length >= 8 ;
+    return cleanedPhone.length >= 8; 
   }, []);
 
-  // دالة لاستدعاء onChange بطريقة memoized
   const triggerOnChange = useCallback((currentPhoneNumber: string, currentSelectedCountry: Country) => {
     const fullNumber = currentSelectedCountry.phoneCode + currentPhoneNumber;
-    const isValid = validatePhoneNumber(currentPhoneNumber, currentSelectedCountry.phoneCode);
+    // تم استدعاء validatePhoneNumber مع وسيط واحد فقط الآن
+    const isValid = validatePhoneNumber(currentPhoneNumber); 
     onChange(fullNumber, isValid);
   }, [onChange, validatePhoneNumber]);
 
-  // useEffect واحد للتعامل مع تحديثات `value` prop وتغييرات الحالة الداخلية
   useEffect(() => {
-    // عند التركيب الأولي، قم باستدعاء onChange مرة واحدة فقط
     if (!isMounted.current) {
       isMounted.current = true;
       triggerOnChange(phoneNumber, selectedCountry);
       return;
     }
 
-    // إذا تغيرت الـ `value` prop من الخارج
     if (value !== prevValueRef.current) {
       const countryFromValue = findCountryByPhoneCodePrefix(value);
       let newPhoneNumber = value;
@@ -104,14 +100,11 @@ const CustomPhoneInput: React.FC<CustomPhoneInputProps> = ({
 
       setSelectedCountry(newSelectedCountry);
       setPhoneNumber(newPhoneNumber);
-      prevValueRef.current = value; // تحديث القيمة السابقة
+      prevValueRef.current = value;
     } else {
-      // إذا لم تتغير الـ `value` prop، ولكن تغيرت الحالة الداخلية (phoneNumber أو selectedCountry)
-      // قم باستدعاء onChange
       triggerOnChange(phoneNumber, selectedCountry);
     }
-  }, [value, phoneNumber, selectedCountry, triggerOnChange, validatePhoneNumber]);
-
+  }, [value, phoneNumber, selectedCountry, triggerOnChange]);
 
   const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const countryCode = e.target.value;

@@ -27,9 +27,9 @@ export const Button: React.FC<ButtonProps> = ({
   loading = false,
 }) => {
   const variantClasses = {
-    primary: "bg-primary text-white hover:bg-phover", // Phover هو اللون الفاتح من primary
-    outline: "bg-transparent text-secondary border border-secondary", // شفاف، نص primary، إطار primary
-    ghost: `bg-input text-primary`,
+    primary: "bg-primary rounded-sm text-white hover:bg-phover", 
+    outline: "bg-transparent text-secondary rounded-sm border border-secondary",
+    ghost: `bg-input text-primary rounded-sm`,
     link: "bg-transparent text-place hover:underline p-0",
   };
   const sizeClasses = {

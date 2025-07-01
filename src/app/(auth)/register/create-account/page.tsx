@@ -68,7 +68,7 @@ export default function CreateAccountPage() {
           <Button
             type="submit"
             variant="primary"
-            className="w-full rounded-lg py-3"
+            className="w-full rounded-sm py-3"
             disabled={loading}
             loading={loading}
           >
