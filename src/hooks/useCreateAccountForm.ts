@@ -1,7 +1,15 @@
+// src/hooks/useCreateAccountForm.ts
+
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+
+interface FormErrors {
+  personalName?: string;
+  secondaryContactInfo?: string;
+  general?: string;
+}
 
 interface UseCreateAccountFormReturn {
   personalName: string;
@@ -9,104 +17,95 @@ interface UseCreateAccountFormReturn {
   secondaryContactInfoValue: string;
   setSecondaryContactInfoValue: (value: string) => void;
   secondaryIsPhoneNumberInput: boolean;
-  setIsPhoneNumberInput: (value: boolean) => void; // هذا هو الاسم الذي يتوقعه المكون
-  errorMessage: string;
+  setIsPhoneNumberInput: (value: boolean) => void;
+  errors: FormErrors;
   loading: boolean;
   handleSecondaryInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSecondaryPhoneInputValidate: (isValid: boolean | undefined, fullNumber: string) => void;
+  // تم تعديل توقيع الدالة لاستقبال رقم الهاتف الكامل
+  handleSecondaryPhoneInputValidate: (fullNumber: string, isValid: boolean) => void;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
   initialContactInfo: string;
   initialIsPhoneNumber: boolean;
 }
 
-// الخطاف المخصص لإدارة منطق نموذج إنشاء الحساب
 export const useCreateAccountForm = (): UseCreateAccountFormReturn => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // الحصول على معلومات الاتصال التي تم التحقق منها أولاً من الـ query parameters
   const initialContactInfo = searchParams.get("contactInfo") || "";
   const initialIsPhoneNumber = searchParams.get("isPhoneNumber") === "true";
 
-  // حالات النموذج
   const [personalName, setPersonalName] = useState<string>('');
   const [secondaryContactInfoValue, setSecondaryContactInfoValue] = useState<string>('');
   const [secondaryIsPhoneNumberInput, setSecondaryIsPhoneNumberInput] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState<boolean>(false);
   
-  // حالات CustomPhoneInput
   const [secondaryPhoneValid, setSecondaryPhoneValid] = useState<boolean>(false);
-  const [fullSecondaryPhoneNumber, setFullSecondaryPhoneNumber] = useState<string>('');
+  const [fullSecondaryPhoneNumber, setFullSecondaryPhoneNumber] = useState<string>(''); // هذا سيحتوي على الرقم الكامل الآن
 
-  // useEffect لتحديد نوع حقل الإدخال الثانوي عند تحميل المكون
-  useEffect(() => {
-    setSecondaryIsPhoneNumberInput(!initialIsPhoneNumber);
-    setSecondaryContactInfoValue(''); 
-  }, [initialIsPhoneNumber]);
-
-  // دالة handleInputChange لتحديد نوع الإدخال الثانوي
   const handleSecondaryInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSecondaryContactInfoValue(value);
-    setErrorMessage('');
+    setErrors(prev => ({ ...prev, secondaryContactInfo: undefined, general: undefined }));
 
-    if (value.includes('@')) {
+    if (value.trim().length === 0) {
       setSecondaryIsPhoneNumberInput(false);
-    } else if (value.trim().length === 0) {
-      setSecondaryIsPhoneNumberInput(!initialIsPhoneNumber); 
-    } else if (/^[a-zA-Z]/.test(value)) {
+    } else if (value.includes('@')) {
       setSecondaryIsPhoneNumberInput(false);
-    } else {
+    } else if (/^\+\d+$/.test(value) || /^\d{3,}$/.test(value)) {
       setSecondaryIsPhoneNumberInput(true);
+    } else {
+      setSecondaryIsPhoneNumberInput(false);
     }
-  }, [initialIsPhoneNumber]);
-
-  const handleSecondaryPhoneInputValidate = useCallback((isValid: boolean | undefined, fullNumber: string) => {
-    setSecondaryPhoneValid(isValid === undefined ? true : isValid);
-    setFullSecondaryPhoneNumber(fullNumber);
   }, []);
 
-  // دالة التحقق من صحة النموذج
-  const validateForm = useCallback((): string => {
+  // تم تعديل توقيع الدالة لاستقبال رقم الهاتف الكامل
+  const handleSecondaryPhoneInputValidate = useCallback((fullNumber: string, isValid: boolean) => {
+    setSecondaryPhoneValid(isValid);
+    setFullSecondaryPhoneNumber(fullNumber); // تخزين الرقم الكامل هنا
+    setErrors(prev => ({ ...prev, secondaryContactInfo: undefined, general: undefined }));
+  }, []);
+
+  const validateForm = useCallback((): FormErrors => {
+    const newErrors: FormErrors = {};
+
     if (personalName.trim().length < 2) {
-      return 'Please enter a valid personal name (at least 2 characters).';
+      newErrors.personalName = 'Please enter a valid personal name (at least 2 characters).';
     }
 
+    // التحقق من secondaryContactInfoValue أو fullSecondaryPhoneNumber بناءً على النوع
     const valueToValidate = secondaryIsPhoneNumberInput ? fullSecondaryPhoneNumber : secondaryContactInfoValue.trim();
 
     if (!valueToValidate) {
-      return 'Please enter the required contact information.';
-    }
-
-    if (secondaryIsPhoneNumberInput) {
+      newErrors.secondaryContactInfo = 'Please enter the required contact information.';
+    } else if (secondaryIsPhoneNumberInput) {
       if (!secondaryPhoneValid) {
-        return 'Please enter a valid phone number.';
+        newErrors.secondaryContactInfo = 'Please enter a valid phone number.';
       }
-      if (valueToValidate.length < 8) {
-        return 'Phone number is too short.';
-      }
+      // يمكن هنا إضافة تحقق إضافي على fullSecondaryPhoneNumber إذا لزم الأمر
     } else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(valueToValidate)) {
-        return 'Please enter a valid email address.';
+        newErrors.secondaryContactInfo = 'Please enter a valid email address.';
       }
     }
-    return '';
+    return newErrors;
   }, [personalName, secondaryContactInfoValue, secondaryIsPhoneNumberInput, secondaryPhoneValid, fullSecondaryPhoneNumber]);
 
-  // دالة معالجة إرسال النموذج
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const error = validateForm();
-    if (error) {
-      setErrorMessage(error);
+    const formValidationErrors = validateForm();
+    if (Object.keys(formValidationErrors).length > 0) {
+      setErrors(formValidationErrors);
+      setErrors(prev => ({ ...prev, general: "Please fill in all required fields." }));
       return;
     }
-    setErrorMessage('');
+    setErrors({});
     setLoading(true);
 
+    // استخدام الرقم الكامل المخزن في fullSecondaryPhoneNumber
     const finalSecondaryContact = secondaryIsPhoneNumberInput ? fullSecondaryPhoneNumber : secondaryContactInfoValue.trim();
 
     console.log(`Simulating verification for secondary contact: ${finalSecondaryContact} (Is Phone: ${secondaryIsPhoneNumberInput})`);
@@ -114,25 +113,24 @@ export const useCreateAccountForm = (): UseCreateAccountFormReturn => {
     setTimeout(() => {
       setLoading(false);
       router.push(
-        `/verify-otp?contactInfo=${encodeURIComponent(finalSecondaryContact)}` +
-        `&isPhoneNumber=${secondaryIsPhoneNumberInput}` +
+        `/verify-otp?contactInfo=${encodeURIComponent(initialContactInfo)}` +
+        `&isPhoneNumber=${initialIsPhoneNumber}` +
         `&source=create-account` +
         `&personalName=${encodeURIComponent(personalName)}` +
-        `&initialContactInfo=${encodeURIComponent(initialContactInfo)}` +
-        `&initialIsPhoneNumber=${initialIsPhoneNumber}`
+        `&secondaryContactInfo=${encodeURIComponent(finalSecondaryContact)}` +
+        `&secondaryIsPhoneNumber=${secondaryIsPhoneNumberInput}`
       );
     }, 1500);
   }, [validateForm, personalName, secondaryContactInfoValue, secondaryIsPhoneNumberInput, fullSecondaryPhoneNumber, initialContactInfo, initialIsPhoneNumber, router]);
 
-  // نُرجع جميع الحالات والدوال التي سيحتاجها المكون
   return {
     personalName,
     setPersonalName,
     secondaryContactInfoValue,
     setSecondaryContactInfoValue,
     secondaryIsPhoneNumberInput,
-    setIsPhoneNumberInput: setSecondaryIsPhoneNumberInput, // <-- تم تصحيح الخطأ هنا
-    errorMessage,
+    setIsPhoneNumberInput: setSecondaryIsPhoneNumberInput,
+    errors,
     loading,
     handleSecondaryInputChange,
     handleSecondaryPhoneInputValidate,

@@ -7,25 +7,22 @@ import React from 'react';
 import Back from '@/_Components/auth/Back';
 import WelcomeHeader from '@/_Components/auth/WelcomeHeader';
 import ContactInputField from '@/_Components/auth/ContactInputField';
-import Input from '@/_Components/ui/Input';
+import Input from '@/_Components/ui/Input'; // تأكد من استيراد Input
 import Button from '@/_Components/ui/Button';
 
 
 import { useCreateAccountForm } from '@/hooks/useCreateAccountForm';
 
 export default function CreateAccountPage() {
-  // استخدام الخطاف المخصص للحصول على جميع الحالات والدوال
   const {
     personalName,
     setPersonalName,
     secondaryContactInfoValue,
-    setSecondaryContactInfoValue,
     secondaryIsPhoneNumberInput,
-    setIsPhoneNumberInput, // يمكنك استخدامها إذا أردت تغييرها يدويا
-    errorMessage,
+    errors,
     loading,
     handleSecondaryInputChange,
-    handleSecondaryPhoneInputValidate,
+    handleSecondaryPhoneInputValidate, // <--- تم تغيير الاسم
     handleSubmit,
   } = useCreateAccountForm();
 
@@ -37,9 +34,8 @@ export default function CreateAccountPage() {
       <div className="flex flex-col items-center justify-center w-full max-w-md mt-24 px-4">
 
         <form onSubmit={handleSubmit} className="w-full space-y-6">
-          {/* حقل الاسم الشخصي */}
           <div className="space-y-2 text-left">
-            <label htmlFor="personalName" className="text-[15px] block">
+            <label htmlFor="personalName" className="text-[15px] block text-secondary">
               Please Enter Personal Name
             </label>
             <Input
@@ -48,27 +44,24 @@ export default function CreateAccountPage() {
               type="text"
               placeholder="Please Personal Name"
               value={personalName}
-              onChange={(e) => { setPersonalName(e.target.value); }} // لا نحتاج لمسح الخطأ هنا، الخطاف سيتولى ذلك
-              className="w-full py-3 px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-primary-light bg-gray-100"
+              onChange={(e) => { setPersonalName(e.target.value); }}
+              className="w-full py-3 px-4 rounded-sm border border-transparent focus:outline-none focus:ring-1 focus:ring-primary/50 bg-input placeholder-place text-secondary"
               autoFocus 
+              error={errors.personalName}
             />
           </div>
 
-          {/* حقل معلومات الاتصال الثانوية (التي يديرها الخطاف الآن) */}
           <ContactInputField
             contactInfoValue={secondaryContactInfoValue}
-            setContactInfoValue={setSecondaryContactInfoValue}
-            isPhoneNumberInput={secondaryIsPhoneNumberInput} 
-            setIsPhoneNumberInput={setIsPhoneNumberInput} // هذه الدالة يمكن أن تستخدم لتغيير نوع الإدخال يدويا إذا لزم الأمر
-            setErrorMessage={() => {}} // الخطاف يدير رسائل الخطأ، لذا نمرر دالة فارغة أو نلغي الحاجة إليها هنا
-            handlePhoneInputValidate={handleSecondaryPhoneInputValidate}
-            errorMessage={errorMessage}
-            onInputChange={handleSecondaryInputChange} 
+            isPhoneNumberInput={secondaryIsPhoneNumberInput}
+            onInputChange={handleSecondaryInputChange}
+            onPhoneInputValidate={handleSecondaryPhoneInputValidate} // <--- تمرير دالة التحقق من الهاتف
+            errorMessage={errors.secondaryContactInfo || ''}
           />
 
-          {errorMessage && (
+          {errors.general && (
             <p className="text-red-500 text-xs italic mt-2 text-center">
-              {errorMessage}
+              {errors.general}
             </p>
           )}
 

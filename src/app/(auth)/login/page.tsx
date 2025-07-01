@@ -1,23 +1,18 @@
 // src/app/(auth)/login/page.tsx
 
-'use client'; 
+'use client';
 
-import React from 'react'; 
-
-import WelcomeHeader from '@/_Components/auth/WelcomeHeader'; 
-import ContactInputField from '@/_Components/auth/ContactInputField'; 
-
-import Button from '@/_Components/ui/Button'; 
-import Back from '@/_Components/auth/Back'; 
-
+import React from 'react';
+import Back from '@/_Components/auth/Back';
+import WelcomeHeader from '@/_Components/auth/WelcomeHeader';
+import ContactInputField from '@/_Components/auth/ContactInputField';
+import Button from '@/_Components/ui/Button';
 import { useLoginForm } from '@/hooks/useLoginForm';
 
 export default function LoginPage() {
   const {
     contactInfoValue,
-    setContactInfoValue,
     isPhoneNumberInput,
-    setIsPhoneNumberInput,
     errorMessage,
     loading,
     handleInputChange,
@@ -26,32 +21,37 @@ export default function LoginPage() {
   } = useLoginForm();
 
   return (
-    <div className="flex flex-col items-center justify-center space-y-16 p-4">
+    <div className="flex flex-col items-center justify-center bg-white p-4 text-gray-800">
       <Back />
       <WelcomeHeader />
 
-      <form onSubmit={handleSubmit} className="w-full px-4 space-y-4 max-w-md">
-        <ContactInputField 
-          contactInfoValue={contactInfoValue}
-          setContactInfoValue={setContactInfoValue}
-          isPhoneNumberInput={isPhoneNumberInput}
-          setIsPhoneNumberInput={setIsPhoneNumberInput}
-          setErrorMessage={() => {}}
-          handlePhoneInputValidate={handlePhoneInputValidate}
-          errorMessage={errorMessage}
-          onInputChange={handleInputChange}
-        />
+      <div className="flex flex-col items-center justify-center w-full max-w-md mt-24 px-4">
+        <form onSubmit={handleSubmit} className="w-full space-y-6">
+          <ContactInputField
+            contactInfoValue={contactInfoValue}
+            isPhoneNumberInput={isPhoneNumberInput}
+            onInputChange={handleInputChange} // تمرير دالة تغيير الإدخال العادي
+            onPhoneInputValidate={handlePhoneInputValidate} // <--- تمرير دالة التحقق من الهاتف
+            errorMessage={errorMessage}
+          />
 
-        <Button 
-          type="submit" 
-          variant="primary" 
-          className="w-full" 
-          disabled={loading}
-          loading={loading}
-        >
-          {loading ? 'continue' : 'Send Verification'} 
-        </Button>
-      </form>
+          {errorMessage && (
+            <p className="text-red-500 text-xs italic mt-2 text-center">
+              {errorMessage}
+            </p>
+          )}
+
+          <Button
+            type="submit"
+            variant="primary"
+            className="w-full rounded-lg py-3"
+            disabled={loading}
+            loading={loading}
+          >
+            {loading ? 'Logging In...' : 'Login'}
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }

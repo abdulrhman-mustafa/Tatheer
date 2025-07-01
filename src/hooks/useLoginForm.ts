@@ -8,12 +8,13 @@ import { mockUsers, User } from '@/data/mockData';
 interface UseLoginFormReturn {
   contactInfoValue: string;
   setContactInfoValue: (value: string) => void;
-  isPhoneNumberInput: boolean; // هذا سيتحكم في عرض CustomPhoneInput
+  isPhoneNumberInput: boolean;
   setIsPhoneNumberInput: (value: boolean) => void;
   errorMessage: string;
   loading: boolean;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handlePhoneInputValidate: (isValid: boolean | undefined, fullNumber: string) => void;
+  // تم تعديل توقيع الدالة لاستقبال رقم الهاتف الكامل
+  handlePhoneInputValidate: (fullNumber: string, isValid: boolean) => void;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
 }
 
@@ -21,39 +22,32 @@ export const useLoginForm = (): UseLoginFormReturn => {
   const router = useRouter();
 
   const [contactInfoValue, setContactInfoValue] = useState<string>('');
-  const [isPhoneNumberInput, setIsPhoneNumberInput] = useState<boolean>(false); // يبدأ بـ false
+  const [isPhoneNumberInput, setIsPhoneNumberInput] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
 
   const [isPhoneValid, setIsPhoneValid] = useState<boolean>(false);
-  const [fullPhoneNumber, setFullPhoneNumber] = useState<string>('');
+  const [fullPhoneNumber, setFullPhoneNumber] = useState<string>(''); // هذا سيحتوي على الرقم الكامل الآن
 
-  // دالة handleInputChange لتحديد نوع الإدخال بناءً على المنطق الجديد
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setContactInfoValue(value);
     setErrorMessage('');
 
-    // المنطق الجديد للتحول الديناميكي:
-    // 1. الأولوية القصوى: إذا كان الإدخال فارغًا تمامًا أو يحتوي على '@'، فهو ليس رقم هاتف (يعود للايميل).
+    // تحديد ما إذا كان المدخل رقم هاتف بناءً على البادئة أو التنسيق
     if (value.trim().length === 0 || value.includes('@')) {
       setIsPhoneNumberInput(false);
-    }
-    // 2. إذا كان الإدخال يبدأ بـ '+' متبوعًا بأرقام (على الأقل رقم واحد)،
-    //    أو يتكون من أرقام فقط (على الأقل 3 أرقام).
-    //    هذا يمنع التحول الفوري عند كتابة رقم واحد فقط.
-    else if (/^\+\d+$/.test(value) || /^\d{3,}$/.test(value)) {
+    } else if (/^\+\d+$/.test(value) || /^\d{3,}$/.test(value)) {
       setIsPhoneNumberInput(true);
-    }
-    // 3. في أي حالة أخرى (يحتوي على أحرف أبجدية بدون '@' أو رموز أخرى)، فهو ليس رقم هاتف.
-    else {
+    } else {
       setIsPhoneNumberInput(false);
     }
   }, []);
 
-  const handlePhoneInputValidate = useCallback((isValid: boolean | undefined, fullNumber: string) => {
-    setIsPhoneValid(isValid === undefined ? false : isValid);
-    setFullPhoneNumber(fullNumber);
+  // تم تعديل توقيع الدالة لاستقبال رقم الهاتف الكامل
+  const handlePhoneInputValidate = useCallback((fullNumber: string, isValid: boolean) => {
+    setIsPhoneValid(isValid);
+    setFullPhoneNumber(fullNumber); // تخزين الرقم الكامل هنا
   }, []);
 
   const validateForm = useCallback((): string => {
@@ -64,24 +58,24 @@ export const useLoginForm = (): UseLoginFormReturn => {
     }
 
     if (isPhoneNumberInput) {
-      // إذا كان isPhoneNumberInput صحيحًا (أي CustomPhoneInput معروض)، تحقق من صحة رقم الهاتف
       if (!isPhoneValid) {
         return 'Please enter a valid phone number.';
       }
+      // يمكن هنا إضافة تحقق إضافي على fullPhoneNumber إذا لزم الأمر
+      // على سبيل المثال، التأكد من أن طول fullPhoneNumber يتوافق مع التنسيق المتوقع
     } else {
-      // إذا كان isPhoneNumberInput خاطئًا (أي Input العادي معروض)، تحقق من صحة البريد الإلكتروني
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(valueTrimmed)) {
         return 'Please enter a valid email address.';
       }
     }
     return '';
-  }, [contactInfoValue, isPhoneNumberInput, isPhoneValid]);
+  }, [contactInfoValue, isPhoneNumberInput, isPhoneValid]); // fullPhoneNumber لم يعد مطلوبًا في التبعيات هنا لأنه يتم استخدامه مباشرة في handleSubmit
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const error = validateForm(); // Validate based on current `isPhoneNumberInput` state
+    const error = validateForm();
     if (error) {
       setErrorMessage(error);
       return;
@@ -89,12 +83,14 @@ export const useLoginForm = (): UseLoginFormReturn => {
     setErrorMessage('');
     setLoading(true);
 
-    // استخدم الحالة الحالية لـ isPhoneNumberInput لتحديد معلومات الاتصال النهائية
+    // استخدام الرقم الكامل المخزن في fullPhoneNumber
     const finalContactInfo = isPhoneNumberInput ? fullPhoneNumber : contactInfoValue.trim();
 
+    // البحث عن المستخدم في البيانات الوهمية
     const foundUser: User | undefined = mockUsers.find(
       user => {
         if (isPhoneNumberInput) {
+          // تأكد من أن تنسيق رقم الهاتف في mockUsers يطابق finalContactInfo (مع رمز الاتصال)
           return user.phoneNumber === finalContactInfo;
         } else {
           return user.email?.toLowerCase() === finalContactInfo.toLowerCase();

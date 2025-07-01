@@ -2,67 +2,54 @@
 
 "use client";
 
-import React from "react";
-import Input from "@/_Components/ui/Input";
-import CustomPhoneInput from "@/_Components/ui/CustomPhoneInput";
+import React from 'react';
+import CustomPhoneInput from '@/_Components/ui/CustomPhoneInput'; // تأكد من المسار الصحيح
+import Input from '@/_Components/ui/Input'; // إذا كان لديك مكون Input عادي
 
 interface ContactInputFieldProps {
   contactInfoValue: string;
-  setContactInfoValue: (value: string) => void;
   isPhoneNumberInput: boolean;
-  setIsPhoneNumberInput: (value: boolean) => void;
-  setErrorMessage: (message: string) => void;
-  handlePhoneInputValidate: (isValid: boolean | undefined, fullNumber: string) => void;
+  // تم تغيير هذه الدوال لتتوافق مع ما يتم تمريره من الخطافات الأبوية
+  onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void; // لـ Input العادي
+  onPhoneInputValidate: (fullNumber: string, isValid: boolean) => void; // لـ CustomPhoneInput
   errorMessage: string;
-  onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const ContactInputField: React.FC<ContactInputFieldProps> = ({
   contactInfoValue,
-  setContactInfoValue,
   isPhoneNumberInput,
-  handlePhoneInputValidate,
-  errorMessage,
   onInputChange,
+  onPhoneInputValidate, // <--- تم تغيير الاسم ليكون أكثر وضوحًا
+  errorMessage,
 }) => {
-  const handlePhoneChange = (phone: string, phoneCode: string, isValid: boolean) => { // <--- تم توحيد التسمية
-    const fullNumber = `${phoneCode}${phone}`;
-    setContactInfoValue(fullNumber);
-    handlePhoneInputValidate(isValid, fullNumber);
-  };
-
   return (
-    <div className="space-y-2">
-      <label htmlFor="contactInfo" className="text-[15px] block text-secondary">
-        {isPhoneNumberInput
-          ? "Phone Number"
-          : "Email or Phone"}
+    <div className="mb-4">
+      <label htmlFor="contactInfo" className="block text-sm font-medium text-gray-700 mb-2">
+        Email or Phone Number
       </label>
-      <div>
-        {isPhoneNumberInput ? (
-          <CustomPhoneInput
-            value={contactInfoValue}
-            onChange={handlePhoneChange}
-            placeholder="Enter phone number"
-            inputClassName="text-secondary"
-          />
-        ) : (
-          <Input
-            id="contactInfo"
-            name="contactInfo"
-            type="text"
-            placeholder="Enter your email or phone number"
-            value={contactInfoValue}
-            onChange={onInputChange}
-            className="w-full px-5 py-3 rounded-sm bg-input placeholder-place border-0 focus:ring-1 focus:ring-primary/50 outline-none transition-all duration-200"
-            autoFocus
-          />
-        )}
-
-        {errorMessage && (
-          <p className="text-red-500 text-xs italic mt-2">{errorMessage}</p>
-        )}
-      </div>
+      {isPhoneNumberInput ? (
+        <CustomPhoneInput
+          value={contactInfoValue} // تمرير القيمة الحالية من الخطاف الأب
+          onChange={onPhoneInputValidate} // <--- تمرير دالة التحقق مباشرة من الخطاف الأب
+          placeholder="Enter your phone number"
+          className="w-full"
+          inputClassName="py-2 px-3 text-base"
+        />
+      ) : (
+        <Input // استخدام مكون Input العادي
+          type="text"
+          id="contactInfo"
+          name="contactInfo"
+          value={contactInfoValue}
+          onChange={onInputChange} // تمرير دالة التغيير العادية من الخطاف الأب
+          placeholder="Enter your email or phone number"
+          className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+          error={errorMessage} // تمرير رسالة الخطأ للمكون Input
+        />
+      )}
+      {!isPhoneNumberInput && errorMessage && (
+        <p className="text-red-500 text-xs italic mt-2">{errorMessage}</p>
+      )}
     </div>
   );
 };
