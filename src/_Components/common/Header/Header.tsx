@@ -5,8 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import React from "react";
 import Button from "@/_Components/ui/Button";
-import { useRouter, usePathname } from "next/navigation"; // <--- استيراد usePathname
-import { twMerge } from "tailwind-merge"; // <--- استيراد twMerge
+import { useRouter, usePathname } from "next/navigation";
+import { twMerge } from "tailwind-merge";
 
 interface HeaderProps {
   isAuthenticated: boolean;
@@ -22,21 +22,16 @@ export const Header: React.FC<HeaderProps> = ({
   userAvatarUrl,
 }) => {
   const router = useRouter();
-  const pathname = usePathname(); // <--- الحصول على المسار الحالي
+  const pathname = usePathname();
 
-  // تحديد ما إذا كانت الصفحة الحالية هي الـ Landing Page
   const isLandingPage = pathname === '/';
-
-  // فئات الروابط
   const navLinkClasses = `text-place hover:text-secondary font-medium transition-colors duration-200`;
 
   return (
     <header
       className={twMerge(
         "py-4 px-4 md:px-10 flex items-center justify-between",
-        // إخفاء الهيدر على الشاشات الصغيرة إلا إذا كانت Landing Page
-        // على الديسكتوب (md:flex) يظهر دائمًا
-        !isLandingPage && "hidden md:flex" // <--- هذا هو الشرط الرئيسي للتحكم في الظهور
+        !isLandingPage && "hidden md:flex"
       )}
     >
       {/* left side */}
@@ -55,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
       {/* center */}
       <nav className="hidden md:flex items-center space-x-8">
-        <Link href="/" className={twMerge(navLinkClasses, pathname === '/' ? 'text-secondary' : '')}> {/* تفعيل Home إذا كان المسار هو الجذر */}
+        <Link href="/" className={twMerge(navLinkClasses, pathname === '/' ? 'text-secondary' : '')}>
           Home
         </Link>
 
