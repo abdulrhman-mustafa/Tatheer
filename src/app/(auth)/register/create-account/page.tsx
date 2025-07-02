@@ -3,14 +3,11 @@
 'use client';
 
 import React from 'react';
-
 import Back from '@/_Components/auth/Back';
 import WelcomeHeader from '@/_Components/auth/WelcomeHeader';
 import ContactInputField from '@/_Components/auth/ContactInputField';
-import Input from '@/_Components/ui/Input'; // تأكد من استيراد Input
+import Input from '@/_Components/ui/Input';
 import Button from '@/_Components/ui/Button';
-
-
 import { useCreateAccountForm } from '@/hooks/useCreateAccountForm';
 
 export default function CreateAccountPage() {
@@ -22,7 +19,7 @@ export default function CreateAccountPage() {
     errors,
     loading,
     handleSecondaryInputChange,
-    handleSecondaryPhoneInputValidate, // <--- تم تغيير الاسم
+    handleSecondaryPhoneInputValidate,
     handleSubmit,
   } = useCreateAccountForm();
 
@@ -32,7 +29,6 @@ export default function CreateAccountPage() {
       <WelcomeHeader />
 
       <div className="flex flex-col items-center justify-center w-full max-w-md mt-24 px-4">
-
         <form onSubmit={handleSubmit} className="w-full space-y-6">
           <div className="space-y-2 text-left">
             <label htmlFor="personalName" className="text-[15px] block text-secondary">
@@ -44,9 +40,9 @@ export default function CreateAccountPage() {
               type="text"
               placeholder="Please Personal Name"
               value={personalName}
-              onChange={(e) => { setPersonalName(e.target.value); }}
+              onChange={(e) => setPersonalName(e.target.value)}
               className="w-full py-3 px-4 rounded-sm border border-transparent focus:outline-none focus:ring-1 focus:ring-primary/50 bg-input placeholder-place text-secondary"
-              autoFocus 
+              autoFocus
               error={errors.personalName}
             />
           </div>
@@ -55,7 +51,7 @@ export default function CreateAccountPage() {
             contactInfoValue={secondaryContactInfoValue}
             isPhoneNumberInput={secondaryIsPhoneNumberInput}
             onInputChange={handleSecondaryInputChange}
-            onPhoneInputValidate={handleSecondaryPhoneInputValidate} // <--- تمرير دالة التحقق من الهاتف
+            onPhoneInputValidate={handleSecondaryPhoneInputValidate}
             errorMessage={errors.secondaryContactInfo || ''}
           />
 

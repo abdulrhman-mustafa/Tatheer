@@ -41,7 +41,7 @@ const SelectRolePage = () =>{
             "
           >
             <div className="flex items-center justify-between w-full mb-4">
-              <h3 className="text-xl font-medium text-primary group-hover:text-white">Influencers</h3>{" "}
+              <h3 className="text-xl font-medium text-primary group-hover:text-white">Influencers</h3>
 
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -60,7 +60,6 @@ const SelectRolePage = () =>{
             </div>
 
             <p className="text-place text-base group-hover:text-white">
-              {" "}
               Earn more by promoting ads on your Twitter account.
             </p>
           </div>
@@ -78,7 +77,7 @@ const SelectRolePage = () =>{
             "
           >
             <div className="flex items-center justify-between w-full mb-4">
-              <h3 className="text-xl font-medium text-primary group-hover:text-white">Advertisers</h3>{" "}
+              <h3 className="text-xl font-medium text-primary group-hover:text-white">Advertisers</h3>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-6 w-6 text-primary border border-primary group-hover:text-white group-hover:border-white rounded-full p-1 stroke-[3]"
@@ -96,7 +95,6 @@ const SelectRolePage = () =>{
             </div>
 
             <p className="text-place text-base group-hover:text-white">
-              {" "}
               Grow your business through influencer-powered, pay-per-click
               campaigns.
             </p>

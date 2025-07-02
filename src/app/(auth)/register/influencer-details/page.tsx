@@ -10,8 +10,8 @@ import Input from '@/_Components/ui/Input';
 import Button from '@/_Components/ui/Button';
 import DropDown from '@/_Components/ui/DropDown';
 import Checkbox from '@/_Components/ui/Checkbox';
-
-import { useInfluencerDetailsForm } from '@/hooks/useInfluencerDetailsForm'; // استيراد الخطاف الجديد
+import { twMerge } from 'tailwind-merge';
+import { useInfluencerDetailsForm } from '@/hooks/useInfluencerDetailsForm';
 
 export default function InfluencerDetailsPage() {
   const {
@@ -27,7 +27,6 @@ export default function InfluencerDetailsPage() {
     loading,
     availableInterests,
     socialMediaPlatforms,
-
     handleInterestToggle,
     handleGenderChange,
     handleAgeChange,
@@ -44,23 +43,22 @@ export default function InfluencerDetailsPage() {
     { value: 'female', label: 'Female' },
   ];
 
-  // إنشاء خيارات العمر هنا أو جلبها من الخطاف مباشرة
-  const ageOptions = Array.from({ length: 70 }, (_, i) => i + 18).map(year => ({
+  const ageOptions = Array.from({ length: 70 }, (_, i) => i + 18).map((year) => ({
     value: `${year} Y`,
-    label: `${year} Y`
+    label: `${year} Y`,
   }));
 
   return (
     <div className="flex flex-col items-center p-4 text-secondary">
-      {/* Back Button and Title */}
       <div className="w-full max-w-md flex justify-between items-center mb-8 mt-4">
         <Back />
-        <h1 className="text-xl font-medium text-center flex-grow md:text-primary">Sign in as Influencers</h1>
+        <h1 className="text-xl font-medium text-center flex-grow md:text-primary">
+          Sign in as Influencers
+        </h1>
       </div>
 
       <div className="flex flex-col w-full max-w-md pb-8">
         <form onSubmit={handleSubmit} className="w-full space-y-6">
-          {/* Select Interests Section */}
           <div>
             <label className="text-base font-medium block mb-3">Select interests :</label>
             <div className="flex flex-wrap gap-2">
@@ -68,7 +66,7 @@ export default function InfluencerDetailsPage() {
                 <Button
                   key={interest}
                   type="button"
-                  size='small'
+                  size="small"
                   variant={selectedInterests.includes(interest) ? 'primary' : 'outline'}
                   onClick={() => handleInterestToggle(interest)}
                 >
@@ -81,7 +79,6 @@ export default function InfluencerDetailsPage() {
             )}
           </div>
 
-          {/* Gender Dropdown*/}
           <DropDown
             id="gender"
             label="Gender*"
@@ -93,7 +90,6 @@ export default function InfluencerDetailsPage() {
             error={errors.gender}
           />
 
-          {/* Age Dropdown */}
           <DropDown
             id="age"
             label="Age*"
@@ -102,76 +98,63 @@ export default function InfluencerDetailsPage() {
             onChange={handleAgeChange}
             options={ageOptions}
             placeholder="20 Y"
-            error={errors.age} 
+            error={errors.age}
           />
 
-          {/* Do you have time to enter more details Section (Collapsible) */}
-          {!showMoreDetails && (
-            <div className="mt-6">
-              <button
-                type="button"
-                onClick={toggleMoreDetails}
-                className="w-full flex justify-between items-center text-place font-normal py-2"
-              >
-                Do you have time to enter more details
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className={`h-5 w-5 transform transition-transform duration-300 ${showMoreDetails ? 'rotate-180' : 'rotate-0'}`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-            </div>
-          )}
+          <button
+            type="button"
+            onClick={toggleMoreDetails}
+            className="flex items-center w-full justify-center text-place text-sm cursor-pointer hover:text-secondary transition-colors"
+          >
+            Do you have time to enter more details
+            <svg
+              className={twMerge(
+                'fill-current h-4 w-4 ml-1 transition-transform duration-200',
+                showMoreDetails ? 'rotate-180' : 'rotate-0'
+              )}
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+            >
+              <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+            </svg>
+          </button>
 
           {showMoreDetails && (
             <div className="space-y-6 mt-4 transition-all duration-300 ease-in-out">
-              {/* Beneficiary Name Input */}
-              <div>
-                <label htmlFor="beneficiaryName" className="text-base font-normal block mb-3">Beneficiary Name</label>
-                <Input
-                  id="beneficiaryName"
-                  name="beneficiaryName"
-                  type="text"
-                  placeholder="Beneficiary Name"
-                  value={beneficiaryName}
-                  onChange={handleBeneficiaryNameChange}
-                  error={errors.beneficiaryName}
-                />
-              </div>
+              <Input
+                id="beneficiaryName"
+                name="beneficiaryName"
+                type="text"
+                label="Beneficiary Name"
+                placeholder="Beneficiary Name"
+                value={beneficiaryName}
+                onChange={handleBeneficiaryNameChange}
+                error={errors.beneficiaryName}
+              />
 
-              {/* Bank Name Input */}
-              <div>
-                <label htmlFor="bankName" className="text-base font-normal block mb-3">Bank Name</label>
-                <Input
-                  id="bankName"
-                  name="bankName"
-                  type="text"
-                  placeholder="Bank Name"
-                  value={bankName}
-                  onChange={handleBankNameChange}
-                  error={errors.bankName}
-                />
-              </div>
+              <Input
+                id="bankName"
+                name="bankName"
+                type="text"
+                label="Bank Name"
+                placeholder="Bank Name"
+                value={bankName}
+                onChange={handleBankNameChange}
+                error={errors.bankName}
+              />
 
-              {/* IBAN Number Input */}
-              <div>
-                <label htmlFor="ibanNumber" className="text-base font-normal block mb-3">IBAN Number</label>
-                <Input
-                  id="ibanNumber"
-                  name="ibanNumber"
-                  type="text"
-                  placeholder="IBAN Number"
-                  value={ibanNumber}
-                  onChange={handleIbanNumberChange}
-                  error={errors.ibanNumber}
-                />
-              </div>
+              <Input
+                id="ibanNumber"
+                name="ibanNumber"
+                type="text"
+                label="IBAN Number"
+                placeholder="IBAN Number"
+                value={ibanNumber}
+                onChange={handleIbanNumberChange}
+                error={errors.ibanNumber}
+              />
 
-              {/* Which Of These Do You Use To Post Ads ? Section */}
+              {/* منصات النشر */}
               <div>
                 <label className="text-base font-medium block mb-3">
                   Which Of These Do You Use To Post Ads?
@@ -215,7 +198,6 @@ export default function InfluencerDetailsPage() {
             </p>
           )}
 
-          {/* Continue Button */}
           <Button
             type="submit"
             variant="primary"

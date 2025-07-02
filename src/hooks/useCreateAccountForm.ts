@@ -21,7 +21,6 @@ interface UseCreateAccountFormReturn {
   errors: FormErrors;
   loading: boolean;
   handleSecondaryInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  // تم تعديل توقيع الدالة لاستقبال رقم الهاتف الكامل
   handleSecondaryPhoneInputValidate: (fullNumber: string, isValid: boolean) => void;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
   initialContactInfo: string;
@@ -35,35 +34,29 @@ export const useCreateAccountForm = (): UseCreateAccountFormReturn => {
   const initialContactInfo = searchParams.get("contactInfo") || "";
   const initialIsPhoneNumber = searchParams.get("isPhoneNumber") === "true";
 
-  const [personalName, setPersonalName] = useState<string>('');
-  const [secondaryContactInfoValue, setSecondaryContactInfoValue] = useState<string>('');
-  const [secondaryIsPhoneNumberInput, setSecondaryIsPhoneNumberInput] = useState<boolean>(false);
+  const [personalName, setPersonalName] = useState('');
+  const [secondaryContactInfoValue, setSecondaryContactInfoValue] = useState('');
+  const [secondaryIsPhoneNumberInput, setSecondaryIsPhoneNumberInput] = useState(false);
+  const [secondaryPhoneValid, setSecondaryPhoneValid] = useState(false);
+  const [fullSecondaryPhoneNumber, setFullSecondaryPhoneNumber] = useState('');
   const [errors, setErrors] = useState<FormErrors>({});
-  const [loading, setLoading] = useState<boolean>(false);
-  
-  const [secondaryPhoneValid, setSecondaryPhoneValid] = useState<boolean>(false);
-  const [fullSecondaryPhoneNumber, setFullSecondaryPhoneNumber] = useState<string>(''); // هذا سيحتوي على الرقم الكامل الآن
+  const [loading, setLoading] = useState(false);
 
   const handleSecondaryInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSecondaryContactInfoValue(value);
     setErrors(prev => ({ ...prev, secondaryContactInfo: undefined, general: undefined }));
 
-    if (value.trim().length === 0) {
+    if (!value.trim() || value.includes('@') === false && !/^\+?\d+$/.test(value)) {
       setSecondaryIsPhoneNumberInput(false);
-    } else if (value.includes('@')) {
-      setSecondaryIsPhoneNumberInput(false);
-    } else if (/^\+\d+$/.test(value) || /^\d{3,}$/.test(value)) {
-      setSecondaryIsPhoneNumberInput(true);
     } else {
-      setSecondaryIsPhoneNumberInput(false);
+      setSecondaryIsPhoneNumberInput(true);
     }
   }, []);
 
-  // تم تعديل توقيع الدالة لاستقبال رقم الهاتف الكامل
   const handleSecondaryPhoneInputValidate = useCallback((fullNumber: string, isValid: boolean) => {
     setSecondaryPhoneValid(isValid);
-    setFullSecondaryPhoneNumber(fullNumber); // تخزين الرقم الكامل هنا
+    setFullSecondaryPhoneNumber(fullNumber);
     setErrors(prev => ({ ...prev, secondaryContactInfo: undefined, general: undefined }));
   }, []);
 
@@ -74,22 +67,21 @@ export const useCreateAccountForm = (): UseCreateAccountFormReturn => {
       newErrors.personalName = 'Please enter a valid personal name (at least 2 characters).';
     }
 
-    // التحقق من secondaryContactInfoValue أو fullSecondaryPhoneNumber بناءً على النوع
-    const valueToValidate = secondaryIsPhoneNumberInput ? fullSecondaryPhoneNumber : secondaryContactInfoValue.trim();
+    const valueToValidate = secondaryIsPhoneNumberInput
+      ? fullSecondaryPhoneNumber
+      : secondaryContactInfoValue.trim();
 
     if (!valueToValidate) {
       newErrors.secondaryContactInfo = 'Please enter the required contact information.';
-    } else if (secondaryIsPhoneNumberInput) {
-      if (!secondaryPhoneValid) {
-        newErrors.secondaryContactInfo = 'Please enter a valid phone number.';
-      }
-      // يمكن هنا إضافة تحقق إضافي على fullSecondaryPhoneNumber إذا لزم الأمر
-    } else {
+    } else if (secondaryIsPhoneNumberInput && !secondaryPhoneValid) {
+      newErrors.secondaryContactInfo = 'Please enter a valid phone number.';
+    } else if (!secondaryIsPhoneNumberInput) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(valueToValidate)) {
         newErrors.secondaryContactInfo = 'Please enter a valid email address.';
       }
     }
+
     return newErrors;
   }, [personalName, secondaryContactInfoValue, secondaryIsPhoneNumberInput, secondaryPhoneValid, fullSecondaryPhoneNumber]);
 
@@ -98,18 +90,22 @@ export const useCreateAccountForm = (): UseCreateAccountFormReturn => {
 
     const formValidationErrors = validateForm();
     if (Object.keys(formValidationErrors).length > 0) {
-      setErrors(formValidationErrors);
-      setErrors(prev => ({ ...prev, general: "Please fill in all required fields." }));
+      setErrors({
+        ...formValidationErrors,
+        general: "Please fill in all required fields."
+      });
       return;
     }
+
     setErrors({});
     setLoading(true);
 
-    // استخدام الرقم الكامل المخزن في fullSecondaryPhoneNumber
-    const finalSecondaryContact = secondaryIsPhoneNumberInput ? fullSecondaryPhoneNumber : secondaryContactInfoValue.trim();
+    const finalSecondaryContact = secondaryIsPhoneNumberInput
+      ? fullSecondaryPhoneNumber
+      : secondaryContactInfoValue.trim();
 
     console.log(`Simulating verification for secondary contact: ${finalSecondaryContact} (Is Phone: ${secondaryIsPhoneNumberInput})`);
-    
+
     setTimeout(() => {
       setLoading(false);
       router.push(
@@ -139,4 +135,3 @@ export const useCreateAccountForm = (): UseCreateAccountFormReturn => {
     initialIsPhoneNumber,
   };
 };
-
