@@ -4,18 +4,15 @@
 
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 
-// تعريف الواجهة لـ SearchContext
 interface SearchContextType {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
 }
 
-// إنشاء الـ Context بقيمة افتراضية
 const SearchContext = createContext<SearchContextType | undefined>(undefined);
 
-// مكون Provider لتوفير الـ Context
 export const SearchProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [searchTerm, setSearchTerm] = useState<string>(''); // حالة البحث الفعلية
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   return (
     <SearchContext.Provider value={{ searchTerm, setSearchTerm }}>
@@ -24,7 +21,6 @@ export const SearchProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   );
 };
 
-// Hook مخصص لاستخدام الـ Context
 export const useSearch = () => {
   const context = useContext(SearchContext);
   if (context === undefined) {
