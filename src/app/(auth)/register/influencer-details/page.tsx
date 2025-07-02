@@ -23,7 +23,7 @@ export default function InfluencerDetailsPage() {
     ibanNumber,
     selectedPlatforms,
     showMoreDetails,
-    errors, // استخدام كائن الأخطاء
+    errors,
     loading,
     availableInterests,
     socialMediaPlatforms,

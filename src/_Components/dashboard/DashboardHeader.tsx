@@ -17,7 +17,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 return (
     <>
     <div className="p-4 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 ">
         <Image
             src={userAvatarUrl}
             alt="User Avatar"
@@ -29,7 +29,7 @@ return (
                 `/avatar.svg`;
             }}
         />
-        <div>
+        <div className="w-48">
             <p className="text-base font-medium text-primary">Hi {userName},</p>
             <p className="text-sm text-place">Tatheer App</p>
         </div>

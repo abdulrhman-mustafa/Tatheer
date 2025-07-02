@@ -28,10 +28,7 @@ const EarningCard: React.FC<EarningCardProps> = ({
   onSelect,
 }) => {
   return (
-    // هذا الـ div هو الحاوية الرئيسية للكارت والزر معًا
-    // بحيث يمكننا تطبيق margin-bottom على الكارت ككل في صفحة الأرباح
     <div className="flex flex-col">
-      {/* هذا الـ div هو الكارت نفسه الذي يحتوي على المحتوى والحدود */}
       <div
         className={twMerge(
           "bg-white rounded-sm flex flex-col border p-4 cursor-pointer",
@@ -48,7 +45,7 @@ const EarningCard: React.FC<EarningCardProps> = ({
               width={40}
               height={40}
               className="rounded-full mr-3 object-cover"
-              onError={(e) => { (e.target as HTMLImageElement).src = '/images/logos/default-brand-logo.png'; }}
+              onError={(e) => { (e.target as HTMLImageElement).src = '/icons/logo.svg'; }}
             />
             <div className="flex flex-col">
               <p className="text-sm font-semibold text-primary">{brandHeadline}</p>
@@ -74,7 +71,7 @@ const EarningCard: React.FC<EarningCardProps> = ({
             layout="fill"
             objectFit="cover"
             className='rounded-sm'
-            onError={(e) => { (e.target as HTMLImageElement).src = '/images/earnings/default-earning.jpg'; }}
+            onError={(e) => { (e.target as HTMLImageElement).src = '/makeup.svg'; }}
           />
         </div>
 
@@ -95,7 +92,7 @@ const EarningCard: React.FC<EarningCardProps> = ({
         </div>
       </div> 
 
-      <div className="mt-4"> {/* إضافة هامش علوي لفصل الزر عن الكارت */}
+      <div className="mt-4">
         <Button
           onClick={(e) => {
             e.stopPropagation();

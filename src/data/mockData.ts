@@ -5,11 +5,12 @@ export interface User {
     name: string;
     email: string;
     avatarUrl?: string;
-    role: 'advertiser' | 'influencer' | 'admin' | 'user';
+    role: 'advertiser' | 'influencer';
     phoneNumber?: string;
     address?: string;
     bio?: string;
     notifications?: number;
+    profileImageUrl?: string;
 }
 
 export interface InfluencerProfile extends User {
@@ -25,15 +26,85 @@ export interface InfluencerProfile extends User {
 }
 
 export interface AdvertiserProfile extends User {
-    brandName: string;
-    brandDescription: string;
+    brandTagline?: string;
     brandLogoUrl?: string;
+    brandName?: string;
+    brandDescription?: string;
     companyLegalName?: string;
     companyCR?: string;
     companyVAT?: string;
     companyBillingAddress?: string;
-    brandTagline?: string;
 }
+
+
+
+export const mockUsers: (User | InfluencerProfile | AdvertiserProfile)[]= [
+
+    {
+        id: 'user-1',
+        name: 'John Doe',
+        email: 'john.doe@example.com',
+        phoneNumber: '+1234567890',
+        role: 'influencer',
+        profileImageUrl: '/icons/avatar.svg',
+        gender: 'male',
+        age: '25 Y',
+        niches: ['Beauty', 'Fashion'],
+        socialMediaLinks: [
+            { platform: 'Instagram', url: 'https://instagram.com/johndoe', followers: 10000, icon: '/icons/instagram.svg' },
+            { platform: 'Youtube', url: 'https://youtube.com/johndoe', followers: 5000, icon: '/icons/youtube.svg' },
+        ],
+        beneficiaryName: 'John Doe',
+        bankName: 'Sample Bank',
+        ibanNumber: 'SA1234567890123456789012',
+    },
+    {
+    id: 'user-2',
+    name: 'Buty Plus',
+    email: 'butyplus@example.com',
+    role: 'advertiser',
+    brandTagline: 'Your skin deserves the best',
+    brandLogoUrl: '/icons/logo.svg',
+    brandName: 'Buty Plus Cosmetics', 
+    brandDescription: 'Leading cosmetics brand for natural skincare.',
+    companyLegalName: 'Buty Plus Inc.',
+    companyCR: 'CR12345',
+    companyVAT: 'VAT98765',
+    companyBillingAddress: '123 Beauty Lane, City, Country',
+    },
+    {
+        id: 'user-3',
+        name: 'Mahmoud Hanafi',
+        email: 'mahmoud.hanafi@example.com',
+        phoneNumber: '+201001234567',
+        role: 'influencer',
+        profileImageUrl: '/icons/avatar.svg',
+        gender: 'male',
+        age: '30 Y',
+        niches: ['Sport', 'Technology'],
+        socialMediaLinks: [
+            { platform: 'X', url: 'https://x.com/mahmoud', followers: 20000, icon: '/icons/x.svg' },
+            { platform: 'Facebook', url: 'https://facebook.com/mahmoud', followers: 15000, icon: '/icons/facebook.svg' },
+        ],
+        beneficiaryName: 'Mahmoud Hanafi',
+        bankName: 'Bank Misr',
+        ibanNumber: 'EG001234567890123456789012345',
+    },
+    {
+        id: 'user-4',
+        name: 'Tech Innovators',
+        email: 'tech@example.com',
+        role: 'advertiser',
+        brandTagline: 'Innovating the future',
+        brandLogoUrl: '/icons/logo.svg',
+        brandName: 'Tech Innovators Solutions',
+        brandDescription: 'Cutting-edge technology solutions for modern businesses.',
+        companyLegalName: 'Tech Innovators LLC',
+        companyCR: 'CR67890',
+        companyVAT: 'VAT54321',
+        companyBillingAddress: '456 Innovation Drive, Tech City, Country',
+    },
+];
 
 export type CampaignStatus = 'active' | 'pending' | 'completed' | 'cancelled' | 'draft';
 
@@ -57,82 +128,7 @@ export interface Campaign {
     createdAt: string; 
 }
 
-export type TransactionType = 'deposit' | 'withdrawal' | 'campaign_payment' | 'campaign_earning';
 
-export interface Transaction {
-    id: string;
-    userId: string;
-    amount: number;
-    type: TransactionType;
-    date: string;
-    status: 'completed' | 'pending' | 'failed';
-    description?: string;
-    campaignId?: string;
-}
-
-export type NotificationType = 'new_campaign' | 'application_status' | 'payment_received' | 'message';
-
-export interface Notification {
-    id: string;
-    userId: string;
-    type: NotificationType;
-    message: string;
-    isRead: boolean;
-    timestamp: string;
-    link?: string;
-}
-
-
-// بيانات المستخدمين الوهمية
-export const mockUsers: User[] = [
-    {
-        id: 'user-1', name: 'Advertiser 1', email: 'advertiser1@example.com', role: 'advertiser',
-        phoneNumber: '123456789', brandName: 'BrandX Corp', brandDescription: 'Leading e-commerce brand.',
-        brandLogoUrl: '/logo.svg',
-        companyLegalName: 'BrandX Corporation', companyCR: 'CR12345', companyVAT: 'VAT98765', companyBillingAddress: '123 Main St, Cairo, Egypt',
-        brandTagline: 'Buty Plus',
-        notifications: 2
-    } as AdvertiserProfile,
-    {
-        id: 'user-2', name: 'Influencer 1', email: 'influencer1@example.com', role: 'influencer',
-        phoneNumber: '987654321', niches: ['Fashion', 'Beauty'], engagementRate: 0.05,
-        socialMediaLinks: [{ platform: 'Instagram', url: 'https://instagram.com/influencer1', followers: 100000, icon: '/icons/instagram.svg' }],
-        avatarUrl: '/avatar.svg',
-        notifications: 5
-    } as InfluencerProfile,
-    {
-        id: 'user-3', name: 'Mahmoud Hanafi', email: 'mahmoud@example.com', role: 'influencer',
-        avatarUrl: '/avatar.svg',
-        phoneNumber: '+970599123456',
-        niches: ['Technology', 'Lifestyle'], engagementRate: 0.07,
-        socialMediaLinks: [{ platform: 'YouTube', url: 'https://youtube.com/mahmoud', followers: 500000, icon: '/icons/youtube.svg' }],
-        notifications: 3
-    } as InfluencerProfile,
-    {
-        id: 'user-4', name: 'Test User Email', email: 'test@example.com', role: 'user', 
-        phoneNumber: undefined, 
-        address: '123 Test St',
-        avatarUrl: '/avatar.svg',
-        notifications: 0
-    },
-    {
-        id: 'user-5', name: 'Admin User', email: 'admin@example.com', role: 'admin',
-        phoneNumber: '+111222334455',
-        address: 'Admin HQ',
-        avatarUrl: '/avatar.svg',
-        notifications: 10
-    },
-    {
-        id: 'user-6', name: 'Khalil User', email: 'khalil79@gmail.com', role: 'influencer', 
-        phoneNumber: '+15551234567',
-        niches: ['Gaming', 'Tech Reviews'], engagementRate: 0.06,
-        socialMediaLinks: [{ platform: 'Twiter', url: 'https://twiter.tv/khalil', followers: 50000, icon: '/icons/x.svg' }],
-        avatarUrl: '/avatar.svg',
-        notifications: 1
-    } as InfluencerProfile,
-];
-
-// بيانات الحملات الوهمية
 export const mockCampaigns: Campaign[] = [
     {
         id: 'camp-1',
@@ -224,11 +220,39 @@ export const mockCampaigns: Campaign[] = [
     },
 ];
 
+
+export type TransactionType = 'deposit' | 'withdrawal' | 'campaign_payment' | 'campaign_earning';
+
+
+export interface Transaction {
+    id: string;
+    userId: string;
+    amount: number;
+    type: TransactionType;
+    date: string;
+    status: 'completed' | 'pending' | 'failed';
+    description?: string;
+    campaignId?: string;
+}
+
 export const mockTransactions: Transaction[] = [
     { id: 'trans-1', userId: 'user-1', amount: 1000, type: 'deposit', date: '2024-06-20', status: 'completed' },
     { id: 'trans-2', userId: 'user-2', amount: 500, type: 'campaign_earning', date: '2024-06-25', status: 'pending', campaignId: 'camp-1' },
     { id: 'trans-3', userId: 'user-3', amount: 300, type: 'campaign_earning', date: '2024-06-26', status: 'completed', campaignId: 'camp-2' },
 ];
+
+
+export type NotificationType = 'new_campaign' | 'application_status' | 'payment_received' | 'message';
+
+export interface Notification {
+    id: string;
+    userId: string;
+    type: NotificationType;
+    message: string;
+    isRead: boolean;
+    timestamp: string;
+    link?: string;
+}
 
 export const mockNotifications: Notification[] = [
     { id: 'notif-1', userId: 'user-2', type: 'new_campaign', message: 'New campaign available: Summer Collection Launch!', isRead: false, timestamp: '2024-06-25T10:00:00Z', link: '/opportunities/camp-1' },

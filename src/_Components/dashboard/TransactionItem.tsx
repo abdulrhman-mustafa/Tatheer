@@ -6,7 +6,7 @@ import Image from 'next/image';
 interface TransactionItemProps {
     description: string;
     amount: number;
-    date: string; //
+    date: string;
     type: 'debit' | 'credit';
     iconSrc: string;
 }

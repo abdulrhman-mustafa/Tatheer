@@ -128,8 +128,7 @@ const DropDown: React.FC<DropDownProps> = ({
               role="option"
               aria-selected={value === option.value}
             >
-              {/* إذا كان لديك أيقونات في المستقبل، يمكنك عرضها هنا */}
-              {/* {option.icon && <Image src={option.icon} alt="" width={20} height={20} className="mr-2" />} */}
+
               {option.label}
             </li>
           ))}

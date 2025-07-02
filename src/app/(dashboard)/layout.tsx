@@ -51,7 +51,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <header className="hidden md:flex w-full p-4 items-center">
                 <Link href="/influencer/opportunities">
                     <Image
-                        src="/logo.svg"
+                        src="/icons/logo.svg"
                         alt="Tatheer Logo"
                         width={40} 
                         height={30} 

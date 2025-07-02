@@ -11,10 +11,9 @@ const AuthHeader: React.FC = () => {
     <>
         <div className="absolute top-8 left-6 lg:hidden block">
           <button
-            onClick={() => router.back()} // الرجوع للصفحة السابقة
+            onClick={() => router.back()}
             className="text-gray-600 hover:text-gray-800"
           >
-            {/* أيقونة السهم الخلفي */}
             <svg
               className="w-6 h-6"
               fill="none"

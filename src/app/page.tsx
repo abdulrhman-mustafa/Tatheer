@@ -1,5 +1,6 @@
 'use client'; // هذا التوجيه ضروري لاستخدام useRouter
 import Header from '@/_Components/common/Header/Header';
+import { ScrollToTopButton } from '@/_Components/common/ScrollToTopButton';
 import AboutUsSection from '@/_Components/sections/AboutUsSection';
 import { CustomerOpinionsSection } from '@/_Components/sections/CustomerOpinionsSection';
 import { FAQSection } from '@/_Components/sections/FAQSection';
@@ -19,6 +20,7 @@ export default function HomePage() {
       <CustomerOpinionsSection/>
       <FAQSection/>
       <FooterSection/>
+      <ScrollToTopButton/>
     </div>
   );
 }

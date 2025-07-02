@@ -31,7 +31,7 @@ export default function InfluencerOpportunitiesPage() {
   const getAdvertiserData = (advertiserId: string) => {
     const advertiser = mockUsers.find(u => u.id === advertiserId && u.role === 'advertiser') as AdvertiserProfile | undefined;
     return {
-      logoUrl: advertiser?.brandLogoUrl || '/logo.svg',
+      logoUrl: advertiser?.brandLogoUrl || '/icons/logo.svg',
       tagline: advertiser?.brandTagline || "Default Brand Tagline",
     };
   };

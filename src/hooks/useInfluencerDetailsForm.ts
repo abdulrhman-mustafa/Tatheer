@@ -266,7 +266,7 @@ export const useInfluencerDetailsForm = (): UseInfluencerDetailsFormReturn => {
     ibanNumber,
     selectedPlatforms,
     showMoreDetails,
-    errors, // إرجاع كائن الأخطاء
+    errors,
     loading,
     availableInterests: AVAILABLE_INTERESTS,
     socialMediaPlatforms: SOCIAL_MEDIA_PLATFORMS,

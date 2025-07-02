@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import Back from '@/_Components/auth/Back';
 import Input from '@/_Components/ui/Input';
 import Button from '@/_Components/ui/Button';
-// تم إزالة استيراد DropDown و Checkbox لأنها لم تعد مستخدمة
 import ContactInputField from '@/_Components/auth/ContactInputField';
 import Image from "next/image";
 
@@ -19,7 +18,7 @@ export default function EditProfilePage() {
   const currentUserId = "user-3";
   const currentUser = mockUsers.find((user) => user.id === currentUserId) as InfluencerProfile | undefined;
 
-  // حالات النموذج - فقط الاسم، رقم الهاتف، والبريد الإلكتروني
+
   const [name, setName] = useState(currentUser?.name || "");
   const [phoneNumber, setPhoneNumber] = useState(currentUser?.phoneNumber || "");
   const [email, setEmail] = useState(currentUser?.email || "");
@@ -61,8 +60,6 @@ export default function EditProfilePage() {
       setEmail(value);
     }
 
-    // منطق التحول بين الإيميل والهاتف
-    // يمكن تبسيطه أكثر إذا كان التبديل يتم فقط عبر زر "Edit"
     if (value.includes('@')) {
       setIsPhoneNumberInput(false);
     } else if (/^\+\d+$/.test(value) || /^\d{3,}$/.test(value)) {
@@ -83,7 +80,6 @@ export default function EditProfilePage() {
     setLoading(true);
     setErrorMessage("");
 
-    // منطق التحقق من صحة النموذج - فقط الاسم، رقم الهاتف، والبريد الإلكتروني
     if (!name.trim()) {
       setErrorMessage("Name is required.");
       setLoading(false);
@@ -104,18 +100,14 @@ export default function EditProfilePage() {
       }
     }
 
-    // هنا يمكنك إرسال البيانات المحدثة إلى backend
     if (currentUser) {
       const userIndex = mockUsers.findIndex((user) => user.id === currentUserId);
       if (userIndex !== -1) {
-        // تحديث البيانات في mockUsers (هذا للتجربة فقط، في تطبيق حقيقي سترسلها إلى API)
         const updatedUser: InfluencerProfile = {
           ...(mockUsers[userIndex] as InfluencerProfile),
           name: name,
-          // تحديث الإيميل أو رقم الهاتف بناءً على isPhoneNumberInput
           email: isPhoneNumberInput ? currentUser.email : email,
           phoneNumber: isPhoneNumberInput ? phoneNumber : currentUser.phoneNumber,
-          // إزالة تحديث الحقول الأخرى
         };
         mockUsers[userIndex] = updatedUser;
         console.log("Profile updated (mock):", mockUsers[userIndex]);
@@ -129,7 +121,6 @@ export default function EditProfilePage() {
     }, 1500);
   }, [name, phoneNumber, email, isPhoneNumberInput, isPhoneValid, currentUser, showToastMessage, router]);
 
-  // تم إزالة خيارات DropDown و Interests و Social Media Platforms و Bank Details لأنها لم تعد مستخدمة
 
   return (
     <div className="p-4 text-secondary md:bg-gray-50 md:rounded-sm">
@@ -176,7 +167,6 @@ export default function EditProfilePage() {
           error={errorMessage.includes('Name is required') ? errorMessage : undefined}
         />
 
-        {/* حقل معلومات الاتصال (الهاتف/البريد الإلكتروني) */}
         <ContactInputField
           contactInfoValue={isPhoneNumberInput ? phoneNumber : email}
           isPhoneNumberInput={isPhoneNumberInput}
@@ -188,14 +178,12 @@ export default function EditProfilePage() {
           }
         />
 
-        {/* رسائل الخطأ العامة */}
         {errorMessage && (
           <p className="text-red-500 text-xs italic mt-2 text-center col-span-full">
             {errorMessage}
           </p>
         )}
 
-        {/* زر الحفظ */}
         <Button
           type="submit"
           variant="primary"
@@ -208,7 +196,6 @@ export default function EditProfilePage() {
         </Button>
       </form>
 
-      {/* Toast Notification */}
       {showToast && (
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg z-50 transition-opacity duration-300">
           {toastMessage}

@@ -19,7 +19,7 @@ export default function CampaignDetailsPage() {
   const campaignId = params.campaignId as string;
 
   const [campaign, setCampaign] = useState<Campaign | null>(null);
-  const [advertiser, setAdvertiser] = useState<AdvertiserProfile | null>(null); // <--- تم تغيير الاسم من influencer إلى advertiser
+  const [advertiser, setAdvertiser] = useState<AdvertiserProfile | null>(null); 
   const [sharedPlatforms, setSharedPlatforms] = useState<Record<string, boolean>>({
     youtube: false,
     instagram: false,
@@ -30,8 +30,8 @@ export default function CampaignDetailsPage() {
   });
   const [uploadedProofs, setUploadedProofs] = useState<string[]>([]);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [showToast, setShowToast] = useState(false); // حالة جديدة للـ Toast
-  const [toastMessage, setToastMessage] = useState(''); // رسالة الـ Toast
+  const [showToast, setShowToast] = useState(false); 
+  const [toastMessage, setToastMessage] = useState(''); 
 
   useEffect(() => {
     const foundCampaign = mockCampaigns.find(c => c.id === campaignId);
@@ -41,38 +41,35 @@ export default function CampaignDetailsPage() {
       const foundAdvertiser = mockUsers.find(
         u => u.id === foundCampaign.advertiserId && u.role === 'advertiser'
       ) as AdvertiserProfile | undefined;
-      setAdvertiser(foundAdvertiser || null); // <--- تم تحديث الاسم
+      setAdvertiser(foundAdvertiser || null); 
     }
   }, [campaignId]);
 
-  // useEffect لتنظيف Object URLs عند إلغاء تحميل المكون أو تغيير uploadedProofs
   useEffect(() => {
     return () => {
       uploadedProofs.forEach(url => URL.revokeObjectURL(url));
     };
   }, [uploadedProofs]);
 
-  // دالة لعرض الـ Toast
+
   const showToastMessage = useCallback((message: string) => {
     setToastMessage(message);
     setShowToast(true);
     const timer = setTimeout(() => {
       setShowToast(false);
       setToastMessage('');
-    }, 3000); // إخفاء الـ Toast بعد 3 ثوانٍ
+    }, 3000); 
     return () => clearTimeout(timer);
   }, []);
 
   const handleCopyLink = useCallback(() => {
     const linkElement = document.getElementById('unique-share-link') as HTMLInputElement;
     if (linkElement && campaign?.shareLink) {
-      // استخدام navigator.clipboard.writeText لنسخ النص (أكثر حداثة)
-      // قد لا يعمل في بيئات iframe معينة بدون إذن، لذا نستخدم execCommand كـ fallback
+
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(campaign.shareLink)
           .then(() => showToastMessage('Link copied to clipboard!'))
           .catch(() => {
-            // Fallback to execCommand if clipboard API fails
             linkElement.select();
             document.execCommand('copy');
             showToastMessage('Link copied to clipboard!');
@@ -116,7 +113,7 @@ export default function CampaignDetailsPage() {
       sharedPlatforms,
       uploadedProofs,
     });
-    // هنا يمكنك إضافة منطق إرسال البيانات إلى الـ backend
+    // في المسنقبل البيانات اللي هنا هتتبعت backend
     setShowSuccessModal(true);
   }, [campaign?.id, sharedPlatforms, uploadedProofs]);
 
@@ -144,7 +141,7 @@ export default function CampaignDetailsPage() {
         <Back />
         <h1 className="text-lg font-medium text-center flex-grow">{campaign.title}</h1>
         <button
-          onClick={() => showToastMessage('Share button clicked (mock)')} // <--- استخدام الـ Toast
+          onClick={() => showToastMessage('Share button clicked (mock)')} 
         >
           <Image
             src="/icons/share.svg"

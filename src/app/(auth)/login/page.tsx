@@ -1,5 +1,3 @@
-// src/app/(auth)/login/page.tsx
-
 'use client';
 
 import React from 'react';
@@ -30,16 +28,10 @@ export default function LoginPage() {
           <ContactInputField
             contactInfoValue={contactInfoValue}
             isPhoneNumberInput={isPhoneNumberInput}
-            onInputChange={handleInputChange} // تمرير دالة تغيير الإدخال العادي
-            onPhoneInputValidate={handlePhoneInputValidate} // <--- تمرير دالة التحقق من الهاتف
+            onInputChange={handleInputChange}
+            onPhoneInputValidate={handlePhoneInputValidate}
             errorMessage={errorMessage}
           />
-
-          {errorMessage && (
-            <p className="text-red-500 text-xs italic mt-2 text-center">
-              {errorMessage}
-            </p>
-          )}
 
           <Button
             type="submit"

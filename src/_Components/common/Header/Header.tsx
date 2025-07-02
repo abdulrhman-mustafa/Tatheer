@@ -44,7 +44,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="logo">
           <Link href="/">
             <Image
-              src="/logo.svg"
+              src="/icons/logo.svg"
               alt="Your App Logo"
               width={40}
               height={40}

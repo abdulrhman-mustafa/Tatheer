@@ -10,16 +10,14 @@ import EarningCard from '@/_Components/dashboard/EarningCard';
 import Back from '@/_Components/auth/Back';
 import { mockUsers, mockCampaigns, AdvertiserProfile } from '@/data/mockData';
 import { timeAgo } from '@/utils/timeAgo';
-import { EarningCardData } from '@/types/earning'; // <--- تمت الإضافة: استيراد الواجهة
+import { EarningCardData } from '@/types/earning'; 
 
 export default function InfluencerEarningsPage() {
   const pathname = usePathname();
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-  // استخدام الواجهة المحددة بدلاً من 'any'
   const [clientEarningsData, setClientEarningsData] = useState<EarningCardData[]>([]);
-  // حالة لتتبع الكروت المحددة
   const [selectedEarnings, setSelectedEarnings] = useState<Set<string>>(new Set());
 
 
@@ -34,12 +32,10 @@ export default function InfluencerEarningsPage() {
   }, []);
 
   const handleWithdrawalRequest = useCallback((earningId: string) => {
-    // <--- تم تصحيح الـ template literals هنا
     console.log(`Withdrawal Request button clicked for earning ID: ${earningId}`);
     showToastMessage(`Withdrawal request initiated for earning ID: ${earningId} (mock).`);
   }, [showToastMessage]);
 
-  // دالة لمعالجة تحديد/إلغاء تحديد الكارت
   const handleSelectEarning = useCallback((earningId: string) => {
     setSelectedEarnings(prevSelected => {
       const newSelected = new Set(prevSelected);
@@ -52,7 +48,6 @@ export default function InfluencerEarningsPage() {
     });
   }, []);
 
-  // Use useMemo for the base data that is static from mockCampaigns/mockUsers
   const baseEarningsData = useMemo(() => {
     return mockCampaigns.map(campaign => {
       const advertiser = mockUsers.find(u => u.id === campaign.advertiserId) as AdvertiserProfile | undefined;
@@ -61,24 +56,23 @@ export default function InfluencerEarningsPage() {
 
       return {
         id: campaign.id,
-        brandLogoUrl: advertiser?.brandLogoUrl || '/images/logos/default-brand-logo.png',
+        brandLogoUrl: advertiser?.brandLogoUrl || 'logo.svg',
         brandHeadline: advertiser?.brandTagline || "Default Brand Tagline",
         productName: campaign.title,
         description: campaign.description,
-        createdAt: campaign.createdAt, // Pass raw createdAt date for client-side processing
-        earningCardImageUrl: campaign.earningCardImageUrl || '/images/earnings/default-earning.jpg',
+        createdAt: campaign.createdAt,
+        earningCardImageUrl: campaign.earningCardImageUrl || '',
         clickCount: Math.floor(Math.random() * 5000) + 100,
         fixedPrice: currentFixedPrice,
         isWithdrawalPossible: currentFixedPrice >= 100,
       };
     });
-  }, []); // إضافة dependencies لتجنب التحذيرات
+  }, []); 
 
-  // Use useEffect to calculate and set client-specific data AFTER hydration
   useEffect(() => {
     const updatedEarnings: EarningCardData[] = baseEarningsData.map(earning => ({
       ...earning,
-      postedTime: timeAgo(earning.createdAt), // Calculate timeAgo only on the client
+      postedTime: timeAgo(earning.createdAt),
     }));
     setClientEarningsData(updatedEarnings);
   }, [baseEarningsData]);
@@ -113,7 +107,6 @@ export default function InfluencerEarningsPage() {
               key={earning.id}
               {...earning}
               onWithdrawalRequest={handleWithdrawalRequest}
-              // <--- تمت الإضافة: تمرير isSelected و onSelect
               isSelected={selectedEarnings.has(earning.id)}
               onSelect={() => handleSelectEarning(earning.id)}
             />

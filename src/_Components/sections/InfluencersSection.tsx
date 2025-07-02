@@ -13,7 +13,6 @@
     imageUrl: string;
     }
 
-    // تنظيف البيانات لإزالة التكرار
     const mockInfluencers: Influencer[] = [
     {
         id: "1",

@@ -1,7 +1,7 @@
 // src/components/auth/OtpInputFields.tsx
 
 import React, { useRef } from 'react';
-import Input  from '@/_Components/ui/Input'; // تأكد من المسار الصحيح لمكون Input
+import Input  from '@/_Components/ui/Input'; 
 
 interface OtpInputFieldsProps {
   otpDigits: string[];
@@ -17,14 +17,14 @@ const OtpInputFields: React.FC<OtpInputFieldsProps> = ({ otpDigits, setOtpDigits
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const value = e.target.value;
-    if (!/^\d*$/.test(value) || value.length > 1) return; // السماح برقم واحد فقط
+    if (!/^\d*$/.test(value) || value.length > 1) return; 
 
     const newOtpDigits = [...otpDigits];
     newOtpDigits[index] = value;
     setOtpDigits(newOtpDigits);
-    setErrorMessage(""); // مسح رسالة الخطأ عند أي تغيير
+    setErrorMessage(""); 
 
-    // نقل التركيز (focus) إلى حقل الإدخال التالي
+
     if (value && index < otpDigits.length - 1) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -46,19 +46,18 @@ const OtpInputFields: React.FC<OtpInputFieldsProps> = ({ otpDigits, setOtpDigits
         <Input
           id={`otp-digit-${index}`}
           key={index}
-          // ربط الـ ref الخاص بكل حقل إدخال
           ref={(el: HTMLInputElement) => {
             if (el) inputRefs.current[index] = el;
           }}
-          type="tel" // استخدام 'tel' لإظهار لوحة المفاتيح الرقمية على الهواتف
-          maxLength={1} // السماح بإدخال رقم واحد فقط
+          type="tel" 
+          maxLength={1} 
           value={digit}
           onChange={(e) => handleOtpDigitChange(index, e)}
           onKeyDown={(e) => handleKeyDown(index, e)}
 
           className="w-12 h-12 bg-gray-100 text-center rounded-lg text-2xl font-bold border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary"
           inputMode="numeric"
-          autoComplete={index === 0 ? "one-time-code" : "off"} // لخاصية التعبئة التلقائية لأكواد OTP
+          autoComplete={index === 0 ? "one-time-code" : "off"} 
         />
       ))}
     </div>

@@ -22,7 +22,6 @@ const [emailNotificationsEnabled, setEmailNotificationsEnabled] = useState<boole
 const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedLanguage(e.target.value);
     console.log("Language changed to:", e.target.value);
-    // هنا يمكن إضافة منطق لتحديث اللغة في إعدادات المستخدم
 };
 const settingsOptions = [
     {

@@ -19,7 +19,6 @@ export default function WalletPage() {
     const [withdrawError, setWithdrawError] = useState("");
     const [loadingWithdraw, setLoadingWithdraw] = useState(false);
 
-  // فلترة معاملات السحب قيد المعالجة (نوع 'withdrawal' وحالة 'pending')
 const withdrawalRequests = mockTransactions.filter(
     (t) => t.type === "withdrawal" && t.status === "pending"
 );
@@ -58,9 +57,9 @@ const handleConfirmWithdraw = (e: FormEvent) => {
     }
 
     console.log(`Withdrawing $${amount} (mock)...`);
-    // في تطبيق حقيقي، سيتم إرسال طلب API للسحب
+
     setTimeout(() => {
-      setCurrentBalance((prevBalance) => prevBalance - amount); // تحديث الرصيد
+        setCurrentBalance((prevBalance) => prevBalance - amount); 
         mockTransactions.push({
         
         id: `trans-${mockTransactions.length + 1}`,

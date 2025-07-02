@@ -10,19 +10,18 @@ interface OtpFieldProps {
 }
 
 const OtpField: React.FC<OtpFieldProps> = ({ otpDigits, setOtpDigits, setErrorMessage }) => { 
-  // تأكد أن هذا الـ ref يتم تهيئته بمصفوفة فارغة
+
   const inputRefs = useRef<HTMLInputElement[]>([]);
 
   useEffect(() => {
-    // التركيز الأولي على أول حقل OTP عند تحميل المكون
-    // نتأكد أن العنصر موجود قبل محاولة التركيز عليه
+
     if (inputRefs.current[0]) {
       inputRefs.current[0].focus();
       console.log("OTP Field: Initial focus set on first input.");
     }
-    // Debugging: Log all refs to see what's populated
+
     console.log("OTP Field: inputRefs.current after initial render:", inputRefs.current);
-  }, []); // تشغيل مرة واحدة فقط عند تحميل المكون
+  }, []); 
 
   const handleOtpDigitChange = (
     index: number,
@@ -61,7 +60,6 @@ const OtpField: React.FC<OtpFieldProps> = ({ otpDigits, setOtpDigits, setErrorMe
     e: React.KeyboardEvent<HTMLInputElement>
   ) => {
     console.log(`OTP Field: KeyDown event at index ${index}, key: ${e.key}`);
-    // عند الضغط على Backspace وحقل الإدخال الحالي فارغ، انقل التركيز إلى الحقل السابق
     if (e.key === "Backspace" && !otpDigits[index] && index > 0) {
       const prevInput = inputRefs.current[index - 1];
       if (prevInput) {
@@ -79,16 +77,10 @@ const OtpField: React.FC<OtpFieldProps> = ({ otpDigits, setOtpDigits, setErrorMe
         <Input
           id='otp'
           key={index}
-          // **التعديل هنا:** تأكد من أننا نخصص العنصر في موقعه الصحيح داخل المصفوفة
           ref={(el: HTMLInputElement) => {
-            // هذا الشرط يضمن أننا نربط العنصر فقط إذا كان موجوداً
             if (el) {
               inputRefs.current[index] = el;
             }
-            // مهم: في كل مرة يعاد عرض المكون، سيتم استدعاء هذا الـ callback.
-            // للتأكد من أن المصفوفة لا تحتوي على عناصر null/undefined في المنتصف
-            // بسبب إعادة عرض انتقائية، يجب أن نحافظ على ترتيبها.
-            // الطريقة الحالية مع `inputRefs.current[index] = el;` تعمل بشكل جيد.
           }}
           type="tel"
           maxLength={1}

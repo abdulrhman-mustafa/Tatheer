@@ -1,17 +1,14 @@
-// src/_Components/auth/ContactInputField.tsx
-
-"use client";
+'use client';
 
 import React from 'react';
-import CustomPhoneInput from '@/_Components/ui/CustomPhoneInput'; // تأكد من المسار الصحيح
-import Input from '@/_Components/ui/Input'; // إذا كان لديك مكون Input عادي
+import CustomPhoneInput from '@/_Components/ui/CustomPhoneInput';
+import Input from '@/_Components/ui/Input';
 
 interface ContactInputFieldProps {
   contactInfoValue: string;
   isPhoneNumberInput: boolean;
-  // تم تغيير هذه الدوال لتتوافق مع ما يتم تمريره من الخطافات الأبوية
-  onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void; // لـ Input العادي
-  onPhoneInputValidate: (fullNumber: string, isValid: boolean) => void; // لـ CustomPhoneInput
+  onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onPhoneInputValidate: (fullNumber: string, isValid: boolean) => void;
   errorMessage: string;
 }
 
@@ -19,7 +16,7 @@ const ContactInputField: React.FC<ContactInputFieldProps> = ({
   contactInfoValue,
   isPhoneNumberInput,
   onInputChange,
-  onPhoneInputValidate, // <--- تم تغيير الاسم ليكون أكثر وضوحًا
+  onPhoneInputValidate,
   errorMessage,
 }) => {
   return (
@@ -29,26 +26,23 @@ const ContactInputField: React.FC<ContactInputFieldProps> = ({
       </label>
       {isPhoneNumberInput ? (
         <CustomPhoneInput
-          value={contactInfoValue} // تمرير القيمة الحالية من الخطاف الأب
-          onChange={onPhoneInputValidate} // <--- تمرير دالة التحقق مباشرة من الخطاف الأب
+          value={contactInfoValue}
+          onChange={onPhoneInputValidate}
           placeholder="Enter your phone number"
           className="w-full"
           inputClassName="py-2 px-3 text-base"
         />
       ) : (
-        <Input // استخدام مكون Input العادي
+        <Input
           type="text"
           id="contactInfo"
           name="contactInfo"
           value={contactInfoValue}
-          onChange={onInputChange} // تمرير دالة التغيير العادية من الخطاف الأب
+          onChange={onInputChange}
           placeholder="Enter your email or phone number"
           className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
-          error={errorMessage} // تمرير رسالة الخطأ للمكون Input
+          error={errorMessage}
         />
-      )}
-      {!isPhoneNumberInput && errorMessage && (
-        <p className="text-red-500 text-xs italic mt-2">{errorMessage}</p>
       )}
     </div>
   );

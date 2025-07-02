@@ -4,10 +4,9 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 interface BottomNavBarProps {
-  activePath: string; // المسار النشط لتحديد الأيقونة الملونة
+  activePath: string;
 }
 const BottomNavBar: React.FC<BottomNavBarProps> = ({ activePath }) => {
-  // تعريف مسارات الأيقونات (افتراضياً في مجلد public/icons)
   const icons = {
     opportunities: {
       active: '/opportunities-active.svg',
@@ -29,20 +28,16 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({ activePath }) => {
         href="/influencer/opportunities"
         className={`flex flex-col items-center ${
           activePath === "/influencer/opportunities"
-            ? "text-primary" // نص باللون الأساسي
-            : "text-secondary hover:text-primary" // نص باللون الثانوي ويتحول للأساسي عند التحويم
+            ? "text-primary"
+            : "text-secondary hover:text-primary" 
         }`}
       >
         <Image
-          // اختر مسار الصورة بناءً على حالة activePath
           src={activePath === "/influencer/opportunities" ? icons.opportunities.active : icons.opportunities.inactive}
           alt="Opportunities Icon"
           width={30}
           height={30}
           className="mb-1"
-          onError={(e) => { // fallback لأي أيقونة مفقودة
-            (e.target as HTMLImageElement).src = ''; // استخدم أيقونة افتراضية آمنة
-          }}
         />
         <span className="text-xs">Opportunities</span>
       </Link>
@@ -71,7 +66,7 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({ activePath }) => {
 
       {/* Settings/Profile Link */}
       <Link
-        href="/settings" // هذا هو المسار الذي يؤدي لصفحة الإعدادات/البروفايل
+        href="/settings"
         className={`flex flex-col items-center ${
           activePath === "/settings"
             ? "text-primary"

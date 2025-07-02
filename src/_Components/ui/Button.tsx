@@ -2,12 +2,12 @@
 
 import React from "react";
 import { ClipLoader } from "react-spinners";
-import { twMerge } from "tailwind-merge"; // تأكد من استيراد twMerge
+import { twMerge } from "tailwind-merge"; 
 
 interface ButtonProps {
   children: React.ReactNode;
-  // تم تعديل واجهة onClick لتشمل كائن الحدث
-  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void; // <--- التعديل هنا
+
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void; 
   type?: "button" | "submit" | "reset";
   disabled?: boolean;
   className?: string;
@@ -38,14 +38,13 @@ export const Button: React.FC<ButtonProps> = ({
     large: "px-6 py-4 text-lg",
   };
 
-  // استخدام twMerge لدمج الكلاسات بشكل صحيح
   const mergedClasses = twMerge(
     variantClasses[variant],
     sizeClasses[size],
     "rounded-sm",
     "transition-all",
     "duration-200",
-    disabled || loading ? 'opacity-60 cursor-not-allowed' : '', // دمج disabled و loading
+    disabled || loading ? 'opacity-60 cursor-not-allowed' : '',
     className 
   );
 
