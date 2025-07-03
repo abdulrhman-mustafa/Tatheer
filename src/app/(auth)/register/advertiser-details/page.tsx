@@ -12,27 +12,35 @@ import { twMerge } from 'tailwind-merge';
 
 export default function AdvertiserDetailsPage() {
   const {
+    formData,
+    showMoreDetails,
+    errors,
+    loading,
+    handleInputChange,
+    handleBrandLogoChange,
+    toggleMoreDetails,
+    handleSubmit,
+  } = useAdvertiserDetailsForm();
+
+  const {
     brandName,
     brandLogoFile,
     brandDescription,
-    showMoreDetails,
     companyLegalName,
     companyCR,
     companyVAT,
     companyBillingAddress,
-    loading,
-    errorMessage,
-    setBrandName,
-    handleBrandLogoChange,
-    setBrandDescription,
-    toggleMoreDetails,
-    setCompanyLegalName,
-    setCompanyCR,
-    setCompanyVAT,
-    setCompanyBillingAddress,
-    handleSubmit,
-    setErrorMessage,
-  } = useAdvertiserDetailsForm();
+  } = formData;
+
+  const {
+    brandName: brandNameError,
+    brandDescription: brandDescriptionError,
+    companyLegalName: companyLegalNameError,
+    companyCR: companyCRError,
+    companyVAT: companyVATError,
+    companyBillingAddress: companyBillingAddressError,
+    general: generalError,
+  } = errors;
 
   return (
     <div className="flex flex-col items-center p-4 text-secondary">
@@ -47,15 +55,13 @@ export default function AdvertiserDetailsPage() {
         <form onSubmit={handleSubmit} className="w-full space-y-6">
           <Input
             id="brandName"
+            name="brandName"
             label="Brand Name*"
             type="text"
             placeholder="Brand Name"
             value={brandName}
-            onChange={(e) => {
-              setBrandName(e.target.value);
-              setErrorMessage('');
-            }}
-            error={errorMessage.includes('Brand Name') ? errorMessage : undefined}
+            onChange={handleInputChange} 
+            error={brandNameError}
           />
 
           <div>
@@ -86,27 +92,23 @@ export default function AdvertiserDetailsPage() {
                   id="brandLogoUpload"
                   type="file"
                   accept="image/*"
+                  name="brandLogoFile" 
                   onChange={handleBrandLogoChange}
                   className="hidden"
                 />
               </label>
             </div>
-            {errorMessage.includes('Brand Logo') && (
-              <p className="text-red-500 text-xs italic mt-2">{errorMessage}</p>
-            )}
           </div>
 
           <Input
             id="brandDescription"
+            name="brandDescription"
             label="Brand description*"
             type="textarea"
             placeholder="Brand description"
             value={brandDescription}
-            onChange={(e) => {
-              setBrandDescription(e.target.value);
-              setErrorMessage('');
-            }}
-            error={errorMessage.includes('Brand Description') ? errorMessage : undefined}
+            onChange={handleInputChange}
+            error={brandDescriptionError}
           />
 
           <button
@@ -131,48 +133,52 @@ export default function AdvertiserDetailsPage() {
             <div className="space-y-6 mt-4 transition-all duration-300 ease-in-out">
               <Input
                 id="companyLegalName"
+                name="companyLegalName"
                 label="Company Legal Name"
                 type="text"
                 placeholder="Company Legal Name"
                 value={companyLegalName}
-                onChange={(e) => setCompanyLegalName(e.target.value)}
-                error={errorMessage.includes('Company Legal Name') ? errorMessage : undefined}
+                onChange={handleInputChange} 
+                error={companyLegalNameError}
               />
 
               <Input
                 id="companyCR"
+                name="companyCR" 
                 label="Company CR"
                 type="text"
                 placeholder="Company CR"
                 value={companyCR}
-                onChange={(e) => setCompanyCR(e.target.value)}
-                error={errorMessage.includes('Company CR') ? errorMessage : undefined}
+                onChange={handleInputChange}
+                error={companyCRError}
               />
 
               <Input
                 id="companyVAT"
+                name="companyVAT"
                 label="Company VAT"
                 type="text"
                 placeholder="Company VAT"
                 value={companyVAT}
-                onChange={(e) => setCompanyVAT(e.target.value)}
-                error={errorMessage.includes('Company VAT') ? errorMessage : undefined}
+                onChange={handleInputChange}
+                error={companyVATError}
               />
 
               <Input
                 id="companyBillingAddress"
+                name="companyBillingAddress" 
                 label="Company Billing Address, City and Country"
                 type="text"
                 placeholder="Company Billing Address, City and Country"
                 value={companyBillingAddress}
-                onChange={(e) => setCompanyBillingAddress(e.target.value)}
-                error={errorMessage.includes('Company Billing Address') ? errorMessage : undefined}
+                onChange={handleInputChange} 
+                error={companyBillingAddressError}
               />
             </div>
           )}
 
-          {errorMessage && (
-            <p className="text-red-500 text-xs italic mt-2 text-center">{errorMessage}</p>
+          {generalError && (
+            <p className="text-red-500 text-xs italic mt-2 text-center">{generalError}</p>
           )}
 
           <Button

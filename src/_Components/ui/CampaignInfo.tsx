@@ -4,7 +4,8 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Campaign, AdvertiserProfile } from '@/data/mockData';
+import { Campaign } from '@/types/campaign';
+import { AdvertiserProfile } from '@/types/user';
 
 interface CampaignInfoProps {
     campaign: Campaign;

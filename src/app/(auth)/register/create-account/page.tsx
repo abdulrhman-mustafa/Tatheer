@@ -10,18 +10,20 @@ import Input from '@/_Components/ui/Input';
 import Button from '@/_Components/ui/Button';
 import { useCreateAccountForm } from '@/hooks/useCreateAccountForm';
 
+
 export default function CreateAccountPage() {
   const {
-    personalName,
-    setPersonalName,
-    secondaryContactInfoValue,
-    secondaryIsPhoneNumberInput,
+    formData, 
     errors,
     loading,
-    handleSecondaryInputChange,
+    handleInputChange,
     handleSecondaryPhoneInputValidate,
     handleSubmit,
   } = useCreateAccountForm();
+
+  // Destructure individual form data fields from the formData object for easier access
+  const { personalName, secondaryContactInfoValue, secondaryIsPhoneNumberInput } = formData;
+
 
   return (
     <div className="flex flex-col items-center justify-center bg-white p-4 text-gray-800">
@@ -40,7 +42,7 @@ export default function CreateAccountPage() {
               type="text"
               placeholder="Please Personal Name"
               value={personalName}
-              onChange={(e) => setPersonalName(e.target.value)}
+              onChange={handleInputChange} 
               className="w-full py-3 px-4 rounded-sm border border-transparent focus:outline-none focus:ring-1 focus:ring-primary/50 bg-input placeholder-place text-secondary"
               autoFocus
               error={errors.personalName}
@@ -50,7 +52,7 @@ export default function CreateAccountPage() {
           <ContactInputField
             contactInfoValue={secondaryContactInfoValue}
             isPhoneNumberInput={secondaryIsPhoneNumberInput}
-            onInputChange={handleSecondaryInputChange}
+            onInputChange={handleInputChange}
             onPhoneInputValidate={handleSecondaryPhoneInputValidate}
             errorMessage={errors.secondaryContactInfo || ''}
           />

@@ -27,7 +27,7 @@ const ContactInputField: React.FC<ContactInputFieldProps> = ({
       {isPhoneNumberInput ? (
         <CustomPhoneInput
           value={contactInfoValue}
-          onChange={onPhoneInputValidate}
+          onChange={(value, isValid) => onPhoneInputValidate(value, isValid)}
           placeholder="Enter your phone number"
           className="w-full"
           inputClassName="py-2 px-3 text-base"
@@ -36,13 +36,18 @@ const ContactInputField: React.FC<ContactInputFieldProps> = ({
         <Input
           type="text"
           id="contactInfo"
-          name="contactInfo"
+          // CORRECTED: Set the correct name attribute for the email input
+          name="secondaryContactInfoValue"
           value={contactInfoValue}
           onChange={onInputChange}
           placeholder="Enter your email or phone number"
           className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
           error={errorMessage}
         />
+      )}
+      {/* You might want to display errorMessage here for CustomPhoneInput too */}
+      {errorMessage && (
+        <p className="text-red-500 text-xs italic mt-1">{errorMessage}</p>
       )}
     </div>
   );

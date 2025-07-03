@@ -10,203 +10,267 @@ import {
   FormEvent,
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { mockUsers, AdvertiserProfile } from "@/data/mockData";
+import { mockUsers } from "@/data/mockData";
+import { AdvertiserProfile, User } from "@/types/user";
+import { useAuth } from "@/context/AuthContext";
 
-interface AdvertiserDetailsFormState {
+// Main form data values
+interface AdvertiserFormData {
   brandName: string;
   brandLogoFile: File | null;
   brandLogoPreview: string | null;
   brandDescription: string;
-  showMoreDetails: boolean;
   companyLegalName: string;
   companyCR: string;
   companyVAT: string;
   companyBillingAddress: string;
-  errorMessage: string;
+}
+
+// Validation errors per field
+interface AdvertiserFormErrors {
+  brandName?: string;
+  brandDescription?: string;
+  // brandLogoFile?: string;
+  companyLegalName?: string;
+  companyCR?: string;
+  companyVAT?: string;
+  companyBillingAddress?: string;
+  general?: string;
+}
+
+// Full form state container
+interface AdvertiserDetailsFormState {
+  formData: AdvertiserFormData;
+  showMoreDetails: boolean;
+  errors: AdvertiserFormErrors;
   loading: boolean;
   showToast: boolean;
   toastMessage: string;
 }
 
+// Handlers and actions
 interface AdvertiserDetailsFormHandlers {
-  setBrandName: (value: string) => void;
+  handleInputChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleBrandLogoChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  setBrandDescription: (value: string) => void;
   toggleMoreDetails: () => void;
-  setCompanyLegalName: (value: string) => void;
-  setCompanyCR: (value: string) => void;
-  setCompanyVAT: (value: string) => void;
-  setCompanyBillingAddress: (value: string) => void;
-  handleSubmit: (e: FormEvent) => Promise<void>;
+  handleSubmit: (e: FormEvent<HTMLFormElement>) => Promise<void>;
   showToastMessage: (message: string) => void;
-  setErrorMessage: (message: string) => void;
 }
 
+// Hook output
 export type UseAdvertiserDetailsFormReturn =
   AdvertiserDetailsFormState & AdvertiserDetailsFormHandlers;
 
 export const useAdvertiserDetailsForm = (): UseAdvertiserDetailsFormReturn => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { login } = useAuth();
 
   const initialContactInfo = searchParams.get("initialContactInfo") || "";
   const initialIsPhoneNumber = searchParams.get("initialIsPhoneNumber") === "true";
   const secondaryContactInfo = searchParams.get("secondaryContactInfo") || "";
 
-  const [brandName, setBrandName] = useState('');
-  const [brandLogoFile, setBrandLogoFile] = useState<File | null>(null);
-  const [brandLogoPreview, setBrandLogoPreview] = useState<string | null>(null);
-  const [brandDescription, setBrandDescription] = useState('');
-  const [showMoreDetails, setShowMoreDetails] = useState(false);
+  // Unified form state
+  const [state, setState] = useState<AdvertiserDetailsFormState>({
+    formData: {
+      brandName: '',
+      brandLogoFile: null,
+      brandLogoPreview: null,
+      brandDescription: '',
+      companyLegalName: '',
+      companyCR: '',
+      companyVAT: '',
+      companyBillingAddress: '',
+    },
+    showMoreDetails: false,
+    errors: {},
+    loading: false,
+    showToast: false,
+    toastMessage: '',
+  });
 
-  const [companyLegalName, setCompanyLegalName] = useState('');
-  const [companyCR, setCompanyCR] = useState('');
-  const [companyVAT, setCompanyVAT] = useState('');
-  const [companyBillingAddress, setCompanyBillingAddress] = useState('');
-
-  const [errorMessage, setErrorMessage] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-
-  const showToastMessage = useCallback((message: string) => {
-    setToastMessage(message);
-    setShowToast(true);
-    const timer = setTimeout(() => {
-      setShowToast(false);
-      setToastMessage('');
-    }, 3000);
-    return () => clearTimeout(timer);
+  // Update a field in formData
+  const updateFormData = useCallback(<K extends keyof AdvertiserFormData>(key: K, value: AdvertiserFormData[K]) => {
+    setState(prevState => ({
+      ...prevState,
+      formData: {
+        ...prevState.formData,
+        [key]: value,
+      },
+      errors: {
+        ...prevState.errors,
+        [key]: undefined, 
+        general: undefined, 
+      }
+    }));
   }, []);
 
+  // Set field errors
+  const setFormErrors = useCallback((newErrors: AdvertiserFormErrors) => {
+    setState(prevState => ({
+      ...prevState,
+      errors: newErrors,
+    }));
+  }, []);
+
+  // Show temporary toast message
+  const showToastMessage = useCallback((message: string) => {
+    setState(prevState => ({
+      ...prevState,
+      toastMessage: message,
+      showToast: true,
+    }));
+    const timer = setTimeout(() => {
+      setState(prevState => ({
+        ...prevState,
+        showToast: false,
+        toastMessage: '',
+      }));
+    }, 3000);
+    return () => clearTimeout(timer); 
+  }, []);
+
+  // Handle input or textarea change
+  const handleInputChange = useCallback((e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+
+    updateFormData(name as keyof AdvertiserFormData, value);
+  }, [updateFormData]);
+
+  // Handle brand logo file upload
   const handleBrandLogoChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files?.[0]) {
-        const file = e.target.files[0];
-        setBrandLogoFile(file);
+      const file = e.target.files?.[0] || null;
 
-        if (brandLogoPreview) URL.revokeObjectURL(brandLogoPreview);
-        setBrandLogoPreview(URL.createObjectURL(file));
-        setErrorMessage('');
-      } else {
-        setBrandLogoFile(null);
-        if (brandLogoPreview) URL.revokeObjectURL(brandLogoPreview);
-        setBrandLogoPreview(null);
+      // لو فيه preview قديم، بنمسحه عشان نمنع Memory Leaks
+      if (state.formData.brandLogoPreview) {
+        URL.revokeObjectURL(state.formData.brandLogoPreview);
       }
+
+      updateFormData('brandLogoFile', file);
+      updateFormData('brandLogoPreview', file ? URL.createObjectURL(file) : null);
+      // تم حذف السطر التالي: setFormErrors(prev => ({ ...prev, brandLogoFile: undefined }));
+      // لأن 'brandLogoFile' غير موجود في AdvertiserFormErrors
+      // إذا كان هناك خطأ محدد يتعلق بملف الشعار (مثل الحجم أو النوع)، يجب إضافته صراحةً إلى الواجهة.
     },
-    [brandLogoPreview]
+    [state.formData.brandLogoPreview, updateFormData] // تم إزالة setFormErrors من هنا
   );
 
+  // Clean up preview URL عند الـ unmount أو تغيير الـ preview
   useEffect(() => {
     return () => {
-      if (brandLogoPreview) URL.revokeObjectURL(brandLogoPreview);
+      if (state.formData.brandLogoPreview) {
+        URL.revokeObjectURL(state.formData.brandLogoPreview);
+      }
     };
-  }, [brandLogoPreview]);
+  }, [state.formData.brandLogoPreview]);
 
+  // Toggle additional company info section
   const toggleMoreDetails = useCallback(() => {
-    setShowMoreDetails((prev) => !prev);
-  }, []);
+    setState((prevState) => ({ ...prevState, showMoreDetails: !prevState.showMoreDetails }));
+    setFormErrors({});
+  }, [setFormErrors]);
 
-  const validateForm = useCallback((): string => {
-    if (!brandName.trim()) return "Brand Name is required.";
-    if (!brandDescription.trim()) return "Brand Description is required.";
+  // Validate input fields
+  const validateForm = useCallback((): AdvertiserFormErrors => {
+    const newErrors: AdvertiserFormErrors = {};
+    const { brandName, brandDescription, companyLegalName, companyCR, companyVAT, companyBillingAddress } = state.formData;
 
-    if (showMoreDetails) {
-      if (!companyLegalName.trim()) return "Company Legal Name is required.";
-      if (!companyCR.trim()) return "Company CR is required.";
-      if (!companyVAT.trim()) return "Company VAT is required.";
-      if (!companyBillingAddress.trim()) return "Company Billing Address, City and Country is required.";
+    if (!brandName.trim()) newErrors.brandName = "Brand Name is required.";
+    if (!brandDescription.trim()) newErrors.brandDescription = "Brand Description is required.";
+
+    // بنشيك على حقول الشركة لو الـ "More Details" مفتوحة
+    if (state.showMoreDetails) {
+      if (!companyLegalName.trim()) newErrors.companyLegalName = "Company Legal Name is required.";
+      if (!companyCR.trim()) newErrors.companyCR = "Company CR is required.";
+      if (!companyVAT.trim()) newErrors.companyVAT = "Company VAT is required.";
+      if (!companyBillingAddress.trim()) newErrors.companyBillingAddress = "Company Billing Address, City and Country is required.";
     }
 
-    return "";
-  }, [
-    brandName,
-    brandDescription,
-    showMoreDetails,
-    companyLegalName,
-    companyCR,
-    companyVAT,
-    companyBillingAddress,
-  ]);
+    return newErrors;
+  }, [state.formData, state.showMoreDetails]);
 
+  // Handle form submission
   const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const error = validateForm();
-    if (error) {
-      setErrorMessage(error);
+    const formErrors = validateForm();
+    setFormErrors(formErrors);
+
+    // لو فيه أي أخطاء، بنعرض رسالة عامة وبنوقف الإرسال
+    if (Object.keys(formErrors).length > 0) {
+      setFormErrors({ ...formErrors, general: "Please correct the errors above." });
       return;
     }
 
-    setLoading(true);
-    setErrorMessage("");
+    // بنشغل مؤشر التحميل وبنمح أي أخطاء سابقة
+    setState(prevState => ({ ...prevState, loading: true, errors: {} }));
 
-    // Backend: Save advertiser to DB here
+    // بنجهز رابط لوجو البراند
+    const brandLogoUrl = state.formData.brandLogoFile
+      ? `/uploads/${state.formData.brandLogoFile.name}`
+      : "/images/logos/default-brand-logo.png";
 
+    // بنحدد الإيميل ورقم التليفون الأساسي والثانوي
+    const email = initialIsPhoneNumber ? secondaryContactInfo : initialContactInfo;
+    const phoneNumber = initialIsPhoneNumber ? initialContactInfo : secondaryContactInfo;
+
+    // بنكون كائن AdvertiserProfile
     const advertiser: AdvertiserProfile = {
       id: `user-${mockUsers.length + 1}-${Date.now()}`,
-      name: brandName,
-      email: initialIsPhoneNumber ? secondaryContactInfo : initialContactInfo,
-      phoneNumber: initialIsPhoneNumber ? initialContactInfo : secondaryContactInfo,
+      name: state.formData.brandName, 
+      email,
+      phoneNumber,
       role: "advertiser",
-      brandName,
-      brandDescription,
-      brandLogoUrl: brandLogoFile ? `/uploads/${brandLogoFile.name}` : "/images/logos/default-brand-logo.png",
-      companyLegalName: showMoreDetails ? companyLegalName : undefined,
-      companyCR: showMoreDetails ? companyCR : undefined,
-      companyVAT: showMoreDetails ? companyVAT : undefined,
-      companyBillingAddress: showMoreDetails ? companyBillingAddress : undefined,
+      brandName: state.formData.brandName,
+      brandDescription: state.formData.brandDescription,
+      brandLogoUrl,
+      companyLegalName: state.showMoreDetails ? state.formData.companyLegalName : undefined,
+      companyCR: state.showMoreDetails ? state.formData.companyCR : undefined,
+      companyVAT: state.showMoreDetails ? state.formData.companyVAT : undefined,
+      companyBillingAddress: state.showMoreDetails ? state.formData.companyBillingAddress : undefined,
     };
 
+    // بنضيف المعلن الجديد للبيانات الوهمية
     mockUsers.push(advertiser);
     console.log("New Advertiser registered (mock):", advertiser);
 
+    // بنعمل login للمستخدم الجديد عشان نحفظ الـ session بتاعته
+    const newUserSession: User = {
+      id: advertiser.id,
+      name: advertiser.name,
+      email: advertiser.email,
+      phoneNumber: advertiser.phoneNumber,
+      role: advertiser.role
+    };
+    login(newUserSession);
+
+    // محاكاة لعملية إرسال البيانات للـ server
     setTimeout(() => {
-      setLoading(false);
+      setState(prevState => ({ ...prevState, loading: false })); 
       showToastMessage("Advertiser details saved successfully!");
-      router.push("/advertiser/campaigns");
+      router.push("/advertiser/campaigns"); 
     }, 2000);
   }, [
+    state.formData,
+    state.showMoreDetails,
     initialContactInfo,
     initialIsPhoneNumber,
     secondaryContactInfo,
-    brandName,
-    brandDescription,
-    brandLogoFile,
-    showMoreDetails,
-    companyLegalName,
-    companyCR,
-    companyVAT,
-    companyBillingAddress,
     validateForm,
+    setFormErrors,
     showToastMessage,
     router,
+    login,
   ]);
 
+  // --- الـ Hook بيرجع الحاجات دي عشان الـ Component يستخدمها ---
   return {
-    brandName,
-    brandLogoFile,
-    brandLogoPreview,
-    brandDescription,
-    showMoreDetails,
-    companyLegalName,
-    companyCR,
-    companyVAT,
-    companyBillingAddress,
-    errorMessage,
-    loading,
-    showToast,
-    toastMessage,
-    setBrandName,
+    ...state,
+    handleInputChange,
     handleBrandLogoChange,
-    setBrandDescription,
     toggleMoreDetails,
-    setCompanyLegalName,
-    setCompanyCR,
-    setCompanyVAT,
-    setCompanyBillingAddress,
     handleSubmit,
     showToastMessage,
-    setErrorMessage,
   };
 };

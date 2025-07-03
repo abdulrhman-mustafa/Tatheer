@@ -8,8 +8,10 @@ import DashboardHeader from '@/_Components/dashboard/DashboardHeader';
 import SearchBar from '@/_Components/dashboard/SearchBar';
 import CampaignCard from '@/_Components/dashboard/CampaignCard';
 import BottomNavBar from '@/_Components/dashboard/BottomNavBar';
-import { mockUsers, mockCampaigns, User, AdvertiserProfile } from '@/data/mockData';
+import { mockUsers, mockCampaigns } from '@/data/mockData';
+import { User, AdvertiserProfile } from '@/types/user';
 import { useRouter } from 'next/navigation';
+
 
 
 export default function InfluencerOpportunitiesPage() {
@@ -47,7 +49,7 @@ export default function InfluencerOpportunitiesPage() {
 
   return (
     <div className="flex flex-col min-h-screen text-secondary pb-16 md:pb-0">
-      <div className="md:hidden">
+      <div className="md:flex md:items-center">
         <DashboardHeader
           userName={user.name}
           userAvatarUrl={user.avatarUrl || '/avatar.svg'}
@@ -58,6 +60,7 @@ export default function InfluencerOpportunitiesPage() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className='md:w-full'
+          notificationsCount={user.notifications ?? 0}
         />
       </div>
       

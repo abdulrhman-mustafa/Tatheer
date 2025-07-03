@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback,  } from 'react';
 import { useRouter } from 'next/navigation';
-import { mockUsers, User } from '@/data/mockData';
+import { mockUsers} from '@/data/mockData';
+import { User } from '@/types/user';
 
 export const useLoginForm = () => {
   const router = useRouter();

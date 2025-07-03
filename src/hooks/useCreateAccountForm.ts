@@ -2,136 +2,207 @@
 
 "use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, ChangeEvent, FormEvent } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-interface FormErrors {
-  personalName?: string;
-  secondaryContactInfo?: string;
-  general?: string;
+// البيانات الأساسية اللي المستخدم بيدخلها
+interface CreateAccountFormData {
+    personalName: string;
+    secondaryContactInfoValue: string;
+    secondaryIsPhoneNumberInput: boolean;
+    secondaryPhoneValid: boolean;
+    fullSecondaryPhoneNumber: string;
 }
 
-interface UseCreateAccountFormReturn {
-  personalName: string;
-  setPersonalName: (name: string) => void;
-  secondaryContactInfoValue: string;
-  setSecondaryContactInfoValue: (value: string) => void;
-  secondaryIsPhoneNumberInput: boolean;
-  setIsPhoneNumberInput: (value: boolean) => void;
-  errors: FormErrors;
-  loading: boolean;
-  handleSecondaryInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSecondaryPhoneInputValidate: (fullNumber: string, isValid: boolean) => void;
-  handleSubmit: (e: React.FormEvent) => Promise<void>;
-  initialContactInfo: string;
-  initialIsPhoneNumber: boolean;
+// الأخطاء اللي ممكن تظهر في الفورم
+interface CreateAccountFormErrors {
+    personalName?: string;
+    initialContactInfo?: string;
+    secondaryContactInfo?: string;
+    general?: string;
 }
 
+// الحالة الكاملة للفورم
+interface CreateAccountFormState {
+    formData: CreateAccountFormData;
+    errors: CreateAccountFormErrors;
+    loading: boolean;
+}
+
+// الدوال اللي هنستخدمها جوه الفورم
+interface CreateAccountFormHandlers {
+    handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
+    handleSecondaryPhoneInputValidate: (fullNumber: string, isValid: boolean) => void;
+    handleSubmit: (e: FormEvent) => Promise<void>;
+    setIsPhoneNumberInput: (value: boolean) => void;
+}
+
+// القيم اللي هنرجعها من الـ hook
+export type UseCreateAccountFormReturn =
+    CreateAccountFormState & CreateAccountFormHandlers & {
+        initialContactInfo: string;
+        initialIsPhoneNumber: boolean;
+    };
+
+// هنا بنبدأ نكتب hook الفورم نفسه
 export const useCreateAccountForm = (): UseCreateAccountFormReturn => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+    const router = useRouter();
+    const searchParams = useSearchParams();
 
-  const initialContactInfo = searchParams.get("contactInfo") || "";
-  const initialIsPhoneNumber = searchParams.get("isPhoneNumber") === "true";
+    const initialContactInfo = searchParams.get("contactInfo") || "";
+    const initialIsPhoneNumber = searchParams.get("isPhoneNumber") === "true";
 
-  const [personalName, setPersonalName] = useState('');
-  const [secondaryContactInfoValue, setSecondaryContactInfoValue] = useState('');
-  const [secondaryIsPhoneNumberInput, setSecondaryIsPhoneNumberInput] = useState(false);
-  const [secondaryPhoneValid, setSecondaryPhoneValid] = useState(false);
-  const [fullSecondaryPhoneNumber, setFullSecondaryPhoneNumber] = useState('');
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [loading, setLoading] = useState(false);
+    const [state, setState] = useState<CreateAccountFormState>({
+        formData: {
+            personalName: '',
+            secondaryContactInfoValue: '',
+            secondaryIsPhoneNumberInput: false,
+            secondaryPhoneValid: false,
+            fullSecondaryPhoneNumber: '',
+        },
+        errors: {},
+        loading: false,
+    });
 
-  const handleSecondaryInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSecondaryContactInfoValue(value);
-    setErrors(prev => ({ ...prev, secondaryContactInfo: undefined, general: undefined }));
+    // لتحديث أي جزء من الحالة بسهولة
+    const updateState = useCallback((updates: Partial<CreateAccountFormState>) => {
+        setState(prevState => ({
+            ...prevState,
+            ...updates,
+            errors: {
+                ...prevState.errors,
+                general: undefined,
+            }
+        }));
+    }, []);
 
-    if (!value.trim() || value.includes('@') === false && !/^\+?\d+$/.test(value)) {
-      setSecondaryIsPhoneNumberInput(false);
-    } else {
-      setSecondaryIsPhoneNumberInput(true);
-    }
-  }, []);
+    // لتحديث البيانات جوا formData
+    const updateFormData = useCallback(<K extends keyof CreateAccountFormData>(key: K, value: CreateAccountFormData[K]) => {
+        setState(prevState => ({
+            ...prevState,
+            formData: {
+                ...prevState.formData,
+                [key]: value,
+            },
+            errors: {
+                ...prevState.errors,
+                [key]: undefined,
+                general: undefined,
+            }
+        }));
+    }, []);
 
-  const handleSecondaryPhoneInputValidate = useCallback((fullNumber: string, isValid: boolean) => {
-    setSecondaryPhoneValid(isValid);
-    setFullSecondaryPhoneNumber(fullNumber);
-    setErrors(prev => ({ ...prev, secondaryContactInfo: undefined, general: undefined }));
-  }, []);
+    // لتعيين الأخطاء مرة واحدة (التعريف الصحيح والوحيد)
+    const setFormErrors = useCallback((newErrors: CreateAccountFormErrors) => {
+        setState(prevState => ({
+            ...prevState,
+            errors: newErrors,
+        }));
+    }, []);
 
-  const validateForm = useCallback((): FormErrors => {
-    const newErrors: FormErrors = {};
+    // لما المستخدم يكتب في أي input
+    const handleInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        updateFormData(name as keyof CreateAccountFormData, value);
 
-    if (personalName.trim().length < 2) {
-      newErrors.personalName = 'Please enter a valid personal name (at least 2 characters).';
-    }
+        if (name === 'secondaryContactInfoValue') {
+            const isPhone = !value.trim() || (!value.includes('@') && /^\+?\d+$/.test(value));
+            updateFormData('secondaryIsPhoneNumberInput', isPhone);
+        }
+    }, [updateFormData]);
 
-    const valueToValidate = secondaryIsPhoneNumberInput
-      ? fullSecondaryPhoneNumber
-      : secondaryContactInfoValue.trim();
+    // لما نتحقق من رقم الموبايل
+    const handleSecondaryPhoneInputValidate = useCallback((fullNumber: string, isValid: boolean) => {
+        updateFormData('secondaryPhoneValid', isValid);
+        updateFormData('fullSecondaryPhoneNumber', fullNumber);
+        // <<-- تم التصحيح هنا: استخدام state.errors مباشرةً بدلاً من updater function
+        setFormErrors({ ...state.errors, secondaryContactInfo: undefined, general: undefined });
+    }, [updateFormData, setFormErrors, state.errors]); 
 
-    if (!valueToValidate) {
-      newErrors.secondaryContactInfo = 'Please enter the required contact information.';
-    } else if (secondaryIsPhoneNumberInput && !secondaryPhoneValid) {
-      newErrors.secondaryContactInfo = 'Please enter a valid phone number.';
-    } else if (!secondaryIsPhoneNumberInput) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(valueToValidate)) {
-        newErrors.secondaryContactInfo = 'Please enter a valid email address.';
-      }
-    }
+    // لو المستخدم عايز يغير نوع الوسيلة التانية (رقم أو إيميل)
+    const setIsPhoneNumberInput = useCallback((value: boolean) => {
+        updateFormData('secondaryIsPhoneNumberInput', value);
+    }, [updateFormData]);
 
-    return newErrors;
-  }, [personalName, secondaryContactInfoValue, secondaryIsPhoneNumberInput, secondaryPhoneValid, fullSecondaryPhoneNumber]);
+    // بنشيك على صحة البيانات
+    const validateForm = useCallback((): CreateAccountFormErrors => {
+        const newErrors: CreateAccountFormErrors = {};
+        const { personalName, secondaryContactInfoValue, secondaryIsPhoneNumberInput, secondaryPhoneValid, fullSecondaryPhoneNumber } = state.formData;
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
+        if (personalName.trim().length < 2) {
+            newErrors.personalName = 'enter a valid name.';
+        }
 
-    const formValidationErrors = validateForm();
-    if (Object.keys(formValidationErrors).length > 0) {
-      setErrors({
-        ...formValidationErrors,
-        general: "Please fill in all required fields."
-      });
-      return;
-    }
+        const valueToValidate = secondaryIsPhoneNumberInput
+            ? fullSecondaryPhoneNumber
+            : secondaryContactInfoValue.trim();
 
-    setErrors({});
-    setLoading(true);
+        if (!valueToValidate) {
+            newErrors.secondaryContactInfo = 'enter a valid phone number or email address.';
+        } else if (secondaryIsPhoneNumberInput && !secondaryPhoneValid) {
+            newErrors.secondaryContactInfo = 'enter a valid phone number.';
+        } else if (!secondaryIsPhoneNumberInput) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(valueToValidate)) {
+                newErrors.secondaryContactInfo = 'enter a valid email address.';
+            }
+        }
 
-    const finalSecondaryContact = secondaryIsPhoneNumberInput
-      ? fullSecondaryPhoneNumber
-      : secondaryContactInfoValue.trim();
+        return newErrors;
+    }, [state.formData]);
 
-    console.log(`Simulating verification for secondary contact: ${finalSecondaryContact} (Is Phone: ${secondaryIsPhoneNumberInput})`);
+    // لما الفورم يتبعت
+    const handleSubmit = useCallback(async (e: FormEvent) => {
+        e.preventDefault();
 
-    setTimeout(() => {
-      setLoading(false);
-      router.push(
-        `/verify-otp?contactInfo=${encodeURIComponent(initialContactInfo)}` +
-        `&isPhoneNumber=${initialIsPhoneNumber}` +
-        `&source=create-account` +
-        `&personalName=${encodeURIComponent(personalName)}` +
-        `&secondaryContactInfo=${encodeURIComponent(finalSecondaryContact)}` +
-        `&secondaryIsPhoneNumber=${secondaryIsPhoneNumberInput}`
-      );
-    }, 1500);
-  }, [validateForm, personalName, secondaryContactInfoValue, secondaryIsPhoneNumberInput, fullSecondaryPhoneNumber, initialContactInfo, initialIsPhoneNumber, router]);
+        const formValidationErrors = validateForm();
+        setFormErrors(formValidationErrors);
 
-  return {
-    personalName,
-    setPersonalName,
-    secondaryContactInfoValue,
-    setSecondaryContactInfoValue,
-    secondaryIsPhoneNumberInput,
-    setIsPhoneNumberInput: setSecondaryIsPhoneNumberInput,
-    errors,
-    loading,
-    handleSecondaryInputChange,
-    handleSecondaryPhoneInputValidate,
-    handleSubmit,
-    initialContactInfo,
-    initialIsPhoneNumber,
-  };
+        if (Object.keys(formValidationErrors).length > 0) {
+            setFormErrors({
+                ...formValidationErrors,
+                general: "your form has errors, please fix them before submitting",
+            });
+            return;
+        }
+
+        updateState({ loading: true, errors: {} });
+
+        const finalSecondaryContact = state.formData.secondaryIsPhoneNumberInput
+            ? state.formData.fullSecondaryPhoneNumber
+            : state.formData.secondaryContactInfoValue.trim();
+
+        console.log(`finalSecondaryContact ${finalSecondaryContact} (Is Phone Number? ${state.formData.secondaryIsPhoneNumberInput})`);
+
+        setTimeout(() => {
+            updateState({ loading: false });
+            router.push(
+                `/verify-otp?contactInfo=${encodeURIComponent(initialContactInfo)}` +
+                `&isPhoneNumber=${initialIsPhoneNumber}` +
+                `&source=create-account` +
+                `&personalName=${encodeURIComponent(state.formData.personalName)}` +
+                `&secondaryContactInfo=${encodeURIComponent(finalSecondaryContact)}` +
+                `&secondaryIsPhoneNumber=${state.formData.secondaryIsPhoneNumberInput}`
+            );
+        }, 1500);
+    }, [
+        validateForm,
+        setFormErrors,
+        updateState,
+        state.formData,
+        initialContactInfo,
+        initialIsPhoneNumber,
+        router
+    ]);
+
+    // البيانات والدوال اللي الفورم بيرجعها
+    return {
+        ...state,
+        handleInputChange,
+        handleSecondaryPhoneInputValidate,
+        handleSubmit,
+        setIsPhoneNumberInput,
+        initialContactInfo,
+        initialIsPhoneNumber,
+    };
 };

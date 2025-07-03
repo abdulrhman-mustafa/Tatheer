@@ -11,7 +11,9 @@ import PlatformChecklist from '@/_Components/ui/PlatformChecklist';
 import Button from '@/_Components/ui/Button';
 import Modal from '@/_Components/ui/Modal';
 import CampaignInfo from '@/_Components/ui/CampaignInfo';
-import { mockCampaigns, mockUsers, Campaign, AdvertiserProfile } from '@/data/mockData';
+import { mockCampaigns, mockUsers } from '@/data/mockData';
+import { Campaign } from '@/types/campaign';
+import { AdvertiserProfile } from '@/types/user';
 
 export default function CampaignDetailsPage() {
   const params = useParams();

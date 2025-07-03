@@ -10,7 +10,8 @@ import Button from '@/_Components/ui/Button';
 import ContactInputField from '@/_Components/auth/ContactInputField';
 import Image from "next/image";
 
-import { mockUsers, InfluencerProfile } from '@/data/mockData';
+import { mockUsers } from '@/data/mockData';
+import { InfluencerProfile } from '@/types/user';
 
 export default function EditProfilePage() { 
   const router = useRouter();
@@ -28,7 +29,6 @@ export default function EditProfilePage() {
   const [showToast, setShowToast] = useState(false); 
   const [toastMessage, setToastMessage] = useState(''); 
 
-  // حالات CustomPhoneInput
   const [isPhoneNumberInput, setIsPhoneNumberInput] = useState<boolean>(!!currentUser?.phoneNumber);
   const [isPhoneValid, setIsPhoneValid] = useState<boolean>(true);
 

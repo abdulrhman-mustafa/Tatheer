@@ -1,5 +1,4 @@
-'use client'; // هذا التوجيه ضروري لاستخدام useRouter
-import Header from '@/_Components/common/Header/Header';
+'use client';
 import { ScrollToTopButton } from '@/_Components/common/ScrollToTopButton';
 import AboutUsSection from '@/_Components/sections/AboutUsSection';
 import { CustomerOpinionsSection } from '@/_Components/sections/CustomerOpinionsSection';
@@ -13,7 +12,6 @@ export default function HomePage() {
 
   return (
     <div>
-      <Header isAuthenticated={false} />
       <HeroSection/>
       <AboutUsSection/>
       <InfluencersSection/>

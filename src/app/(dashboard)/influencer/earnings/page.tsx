@@ -8,9 +8,11 @@ import SearchBar from '@/_Components/dashboard/SearchBar';
 import BottomNavBar from '@/_Components/dashboard/BottomNavBar';
 import EarningCard from '@/_Components/dashboard/EarningCard';
 import Back from '@/_Components/auth/Back';
-import { mockUsers, mockCampaigns, AdvertiserProfile } from '@/data/mockData';
+import { mockUsers, mockCampaigns } from '@/data/mockData';
+import { AdvertiserProfile, User} from '@/types/user';
 import { timeAgo } from '@/utils/timeAgo';
 import { EarningCardData } from '@/types/earning'; 
+import DashboardHeader from '@/_Components/dashboard/DashboardHeader';
 
 export default function InfluencerEarningsPage() {
   const pathname = usePathname();
@@ -19,6 +21,17 @@ export default function InfluencerEarningsPage() {
   const [toastMessage, setToastMessage] = useState('');
   const [clientEarningsData, setClientEarningsData] = useState<EarningCardData[]>([]);
   const [selectedEarnings, setSelectedEarnings] = useState<Set<string>>(new Set());
+
+  const currentUser = mockUsers.find(
+      user => user.name === 'Mahmoud Hanafi' && user.role === 'influencer'
+    ) as User | undefined;
+  
+    const user = currentUser || {
+      name: 'User',
+      avatarUrl: '/avatar.svg',
+      notifications: 0,
+      role: 'user',
+    };
 
 
   const showToastMessage = useCallback((message: string) => {
@@ -92,11 +105,19 @@ export default function InfluencerEarningsPage() {
             <Back/>
             <h1 className="text-xl font-medium text-center flex-grow">My Earnings</h1>
         </div>
+      </div>
+      <div className="hidden md:flex">
+        <DashboardHeader
+          userName={user.name}
+          userAvatarUrl={user.avatarUrl || '/avatar.svg'}
+          notificationsCount={user.notifications ?? 0}
+        />
         <SearchBar
-          placeholder="Search earnings"
+          placeholder="Search"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className='md:w-full'
+          notificationsCount={user.notifications ?? 0}
         />
       </div>
 

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Lexend } from 'next/font/google';
 import './globals.css';
+import { AuthProvider } from "@/context/AuthContext";
+import Header from "@/_Components/common/Header/Header";
 
 
 
@@ -22,7 +24,10 @@ export default function RootLayout({
     
     <html lang="en" className={lexend.className}>
       <body  className="font-lexend">
-        {children}
+        <AuthProvider>
+          <Header />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

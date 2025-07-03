@@ -9,7 +9,7 @@ const AuthHeader: React.FC = () => {
 
   return (
     <>
-        <div className="absolute top-8 left-6 lg:hidden block">
+        <div className="absolute top-8 left-6 md:hidden block">
           <button
             onClick={() => router.back()}
             className="text-gray-600 hover:text-gray-800"

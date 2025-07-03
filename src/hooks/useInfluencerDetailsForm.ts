@@ -2,16 +2,31 @@
 
 "use client";
 
-import { useState, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import {
-  mockUsers,
-  InfluencerProfile,
-  AVAILABLE_INTERESTS,
-  SOCIAL_MEDIA_PLATFORMS,
-} from "@/data/mockData";
+  useCallback,
+  useState,
+  ChangeEvent,
+  FormEvent,
+} from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { mockUsers } from "@/data/mockData";
+import { User, InfluencerProfile } from "@/types/user";
+import { AVAILABLE_INTERESTS, SOCIAL_MEDIA_PLATFORMS } from "@/constants/influencerData";
+import { useAuth } from "@/context/AuthContext";
 
-interface FormErrors {
+// Basic form input values
+interface InfluencerFormData {
+  selectedInterests: string[];
+  gender: string;
+  age: string;
+  beneficiaryName: string;
+  bankName: string;
+  ibanNumber: string;
+  selectedPlatforms: string[];
+}
+
+// Validation errors for each field
+interface InfluencerFormErrors {
   selectedInterests?: string;
   gender?: string;
   age?: string;
@@ -22,128 +37,167 @@ interface FormErrors {
   general?: string;
 }
 
-interface UseInfluencerDetailsFormReturn {
-  personalName: string;
-  initialContactInfo: string;
-  initialIsPhoneNumber: boolean;
-  secondaryContactInfo: string;
-  selectedInterests: string[];
-  gender: string;
-  age: string;
-  beneficiaryName: string;
-  bankName: string;
-  ibanNumber: string;
-  selectedPlatforms: string[];
+// Overall form state (values, loading, errors, etc.)
+interface InfluencerDetailsFormState {
+  formData: InfluencerFormData;
   showMoreDetails: boolean;
-  errors: FormErrors;
+  errors: InfluencerFormErrors;
   loading: boolean;
-  availableInterests: string[];
-  socialMediaPlatforms: { name: string; icon: string }[];
-  handleInterestToggle: (interest: string) => void;
-  handleGenderChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  handleAgeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  handleBeneficiaryNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleBankNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleIbanNumberChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handlePlatformToggle: (platform: string) => void;
-  toggleMoreDetails: () => void;
-  handleSubmit: (e: React.FormEvent) => Promise<void>;
+  showToast: boolean;
+  toastMessage: string;
 }
 
+// Form actions and event handlers
+interface InfluencerDetailsFormHandlers {
+  handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleInterestToggle: (interest: string) => void;
+  handleGenderChange: (value: string) => void;
+  handleAgeChange: (value: string) => void;
+  toggleMoreDetails: () => void;
+  handlePlatformToggle: (platformName: string) => void;
+  handleSubmit: (e: FormEvent<HTMLFormElement>) => Promise<void>;
+  showToastMessage: (message: string) => void;
+}
+
+// What this hook exposes to the component
+export type UseInfluencerDetailsFormReturn =
+  InfluencerDetailsFormState & InfluencerDetailsFormHandlers & {
+    availableInterests: string[];
+    socialMediaPlatforms: { name: string; icon?: string }[]; // Keeping your original structure here
+  };
+
+// Hook logic starts here
 export const useInfluencerDetailsForm = (): UseInfluencerDetailsFormReturn => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { login } = useAuth();
 
-  const personalName = searchParams.get("personalName") || "";
+  // Read query params passed from previous step
   const initialContactInfo = searchParams.get("initialContactInfo") || "";
   const initialIsPhoneNumber = searchParams.get("initialIsPhoneNumber") === "true";
   const secondaryContactInfo = searchParams.get("secondaryContactInfo") || "";
+  const personalNameFromRegister = searchParams.get("personalName") || "";
 
-  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-  const [gender, setGender] = useState<string>("");
-  const [age, setAge] = useState<string>("");
-  const [beneficiaryName, setBeneficiaryName] = useState<string>("");
-  const [bankName, setBankName] = useState<string>("");
-  const [ibanNumber, setIbanNumber] = useState<string>("");
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
-  const [showMoreDetails, setShowMoreDetails] = useState<boolean>(false);
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [loading, setLoading] = useState<boolean>(false);
+  // Unified state for the full form
+  const [state, setState] = useState<InfluencerDetailsFormState>({
+    formData: {
+      selectedInterests: [],
+      gender: '',
+      age: '',
+      beneficiaryName: '',
+      bankName: '',
+      ibanNumber: '',
+      selectedPlatforms: [],
+    },
+    showMoreDetails: false,
+    errors: {},
+    loading: false,
+    showToast: false,
+    toastMessage: '',
+  });
+
+  // Update a single field in formData
+  // FIXED: Using Generics to remove 'any' and enforce type safety
+  const updateFormData = useCallback(<K extends keyof InfluencerFormData>(key: K, value: InfluencerFormData[K]) => {
+    setState(prevState => ({
+      ...prevState,
+      formData: {
+        ...prevState.formData,
+        [key]: value,
+      },
+      errors: {
+        ...prevState.errors,
+        [key]: undefined,
+        general: undefined,
+      }
+    }));
+  }, []);
+
+  // Set field-specific error messages
+  const setFormErrors = useCallback((newErrors: InfluencerFormErrors) => {
+    setState(prevState => ({
+      ...prevState,
+      errors: newErrors,
+    }));
+  }, []);
+
+  // Show a temporary toast message
+  const showToastMessage = useCallback((message: string) => {
+    setState(prevState => ({
+      ...prevState,
+      toastMessage: message,
+      showToast: true,
+    }));
+    const timer = setTimeout(() => {
+      setState(prevState => ({
+        ...prevState,
+        showToast: false,
+        toastMessage: '',
+      }));
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    // Cast name to match keys of formData
+    updateFormData(name as keyof InfluencerFormData, value);
+  }, [updateFormData]);
 
   const handleInterestToggle = useCallback((interest: string) => {
-    setSelectedInterests((prev) =>
-      prev.includes(interest) ? prev.filter((i) => i !== interest) : [...prev, interest]
+    updateFormData('selectedInterests',
+      state.formData.selectedInterests.includes(interest)
+        ? state.formData.selectedInterests.filter((i) => i !== interest)
+        : [...state.formData.selectedInterests, interest]
     );
-    setErrors(prev => ({ ...prev, selectedInterests: undefined }));
-  }, []);
+  }, [state.formData.selectedInterests, updateFormData]);
 
-  const handleGenderChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setGender(e.target.value);
-    setErrors(prev => ({ ...prev, gender: undefined }));
-  }, []);
+  const handleGenderChange = useCallback((value: string) => {
+    updateFormData('gender', value);
+  }, [updateFormData]);
 
-  const handleAgeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setAge(e.target.value);
-    setErrors(prev => ({ ...prev, age: undefined }));
-  }, []);
-
-  const handleBeneficiaryNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setBeneficiaryName(e.target.value);
-    setErrors(prev => ({ ...prev, beneficiaryName: undefined }));
-  }, []);
-
-  const handleBankNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setBankName(e.target.value);
-    setErrors(prev => ({ ...prev, bankName: undefined }));
-  }, []);
-
-  const handleIbanNumberChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setIbanNumber(e.target.value);
-    setErrors(prev => ({ ...prev, ibanNumber: undefined }));
-  }, []);
-
-  const handlePlatformToggle = useCallback((platform: string) => {
-    setSelectedPlatforms((prev) =>
-      prev.includes(platform) ? prev.filter((p) => p !== platform) : [...prev, platform]
-    );
-    setErrors(prev => ({ ...prev, selectedPlatforms: undefined }));
-  }, []);
+  const handleAgeChange = useCallback((value: string) => {
+    updateFormData('age', value);
+  }, [updateFormData]);
 
   const toggleMoreDetails = useCallback(() => {
-    setShowMoreDetails((prev) => !prev);
-    if (showMoreDetails) {
-      setErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors.beneficiaryName;
-        delete newErrors.bankName;
-        delete newErrors.ibanNumber;
-        delete newErrors.selectedPlatforms;
-        return newErrors;
-      });
-    }
-  }, [showMoreDetails]);
+    setState(prevState => ({
+      ...prevState,
+      showMoreDetails: !prevState.showMoreDetails,
+    }));
+  }, []);
 
-  const validateForm = useCallback((): FormErrors => {
-    const newErrors: FormErrors = {};
+  const handlePlatformToggle = useCallback((platformName: string) => {
+    updateFormData('selectedPlatforms',
+      state.formData.selectedPlatforms.includes(platformName)
+        ? state.formData.selectedPlatforms.filter((p) => p !== platformName)
+        : [...state.formData.selectedPlatforms, platformName]
+    );
+  }, [state.formData.selectedPlatforms, updateFormData]);
+
+  // Run validations before submit
+  const validateForm = useCallback((): InfluencerFormErrors => {
+    const newErrors: InfluencerFormErrors = {};
+    const { selectedInterests, gender, age, beneficiaryName, bankName, ibanNumber, selectedPlatforms } = state.formData;
 
     if (selectedInterests.length === 0) {
       newErrors.selectedInterests = "Please select at least one interest.";
     }
     if (!gender) {
-      newErrors.gender = "Please select your gender.";
+      newErrors.gender = "Gender is required.";
     }
     if (!age) {
-      newErrors.age = "Please select your age.";
+      newErrors.age = "Age is required.";
     }
 
-    if (showMoreDetails) {
-      if (beneficiaryName.trim().length < 3) {
-        newErrors.beneficiaryName = "Beneficiary Name must be at least 3 characters.";
+    if (state.showMoreDetails) {
+      if (!beneficiaryName.trim()) {
+        newErrors.beneficiaryName = "Beneficiary Name is required.";
       }
-      if (bankName.trim().length < 3) {
-        newErrors.bankName = "Bank Name must be at least 3 characters.";
+      if (!bankName.trim()) {
+        newErrors.bankName = "Bank Name is required.";
       }
-      if (ibanNumber.trim().length === 0) {
+      if (!ibanNumber.trim()) {
         newErrors.ibanNumber = "IBAN Number is required.";
       }
       if (selectedPlatforms.length === 0) {
@@ -152,100 +206,99 @@ export const useInfluencerDetailsForm = (): UseInfluencerDetailsFormReturn => {
     }
 
     return newErrors;
-  }, [
-    selectedInterests,
-    gender,
-    age,
-    showMoreDetails,
-    beneficiaryName,
-    bankName,
-    ibanNumber,
-    selectedPlatforms,
-  ]);
+  }, [state.formData, state.showMoreDetails]);
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+  // Handle form submit and save data
+  const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setErrors({});
 
-    const formValidationErrors = validateForm();
-    if (Object.keys(formValidationErrors).length > 0) {
-      setErrors(formValidationErrors);
-      setErrors(prev => ({ ...prev, general: "Please fill in all required fields." }));
+    const formErrors = validateForm();
+    setFormErrors(formErrors);
+
+    if (Object.keys(formErrors).length > 0) {
+      setFormErrors({ ...formErrors, general: "Please correct the errors above." });
       return;
     }
 
-    setLoading(true);
+    setState(prevState => ({ ...prevState, loading: true, errors: {} }));
 
-    const newInfluencer: InfluencerProfile = {
+    const email = initialIsPhoneNumber ? secondaryContactInfo : initialContactInfo;
+    const phoneNumber = initialIsPhoneNumber ? initialContactInfo : secondaryContactInfo;
+    const name = personalNameFromRegister || 'New Influencer';
+
+    const influencer: InfluencerProfile = {
       id: `user-${mockUsers.length + 1}-${Date.now()}`,
-      name: personalName,
-      email: initialIsPhoneNumber ? secondaryContactInfo : initialContactInfo,
-      phoneNumber: initialIsPhoneNumber ? initialContactInfo : secondaryContactInfo,
+      name: name,
+      email: email,
+      phoneNumber: phoneNumber,
       role: "influencer",
-      niches: selectedInterests,
-      gender,
-      age,
-      socialMediaLinks: selectedPlatforms.map((platformName) => ({
-        platform: platformName,
-        url: `https://www.${platformName.toLowerCase()}.com/user`,
-        followers: 0,
-        icon: SOCIAL_MEDIA_PLATFORMS.find((p) => p.name === platformName)?.icon || "",
-      })),
-      engagementRate: 0,
-      beneficiaryName: showMoreDetails ? beneficiaryName : undefined,
-      bankName: showMoreDetails ? bankName : undefined,
-      ibanNumber: showMoreDetails ? ibanNumber : undefined,
+      userName: name.split(' ')[0] || 'influencer',
+      profilePictureUrl: "/images/default-avatar.png",
+      bio: "An aspiring influencer.",
+      // FIXED: Ensure socialMediaLinks are mapped to the correct SocialMediaLink interface
+      socialMediaLinks: SOCIAL_MEDIA_PLATFORMS 
+        .filter(platform => state.formData.selectedPlatforms.includes(platform.name))
+        .map(platform => ({
+          platform: platform.name, // ✅ هنا استخدمنا "platform" بدل "name"
+          url: `https://example.com/${platform.name.toLowerCase()}/${name.replace(/\s/g, '')}`,
+          icon: platform.icon || '',
+          followers: 0,
+        })), // Explicitly cast to SocialMediaLink if needed
+      categories: state.formData.selectedInterests,
+      audienceDemographics: [{ country: "Egypt", ageRange: state.formData.age || "18-99" }],
+      gender: state.formData.gender,
+      age: state.formData.age,
+      selectedInterests: state.formData.selectedInterests,
+      selectedPlatforms: state.formData.selectedPlatforms,
+      ...(state.showMoreDetails && {
+        beneficiaryName: state.formData.beneficiaryName,
+        bankName: state.formData.bankName,
+        ibanNumber: state.formData.ibanNumber,
+      }),
     };
 
-    mockUsers.push(newInfluencer); // كده كده دي بيانات تجريبية عادي
-    console.log("New Influencer registered:", newInfluencer);
+    mockUsers.push(influencer);
+
+    const newUserSession: User = {
+      id: influencer.id,
+      name: influencer.name,
+      email: influencer.email,
+      phoneNumber: influencer.phoneNumber,
+      role: influencer.role
+    };
+    login(newUserSession);
 
     setTimeout(() => {
-      setLoading(false);
-      router.push(`/influencer/opportunities?role=influencer`);
-    }, 1500);
+      setState(prevState => ({ ...prevState, loading: false }));
+      showToastMessage("Influencer details saved successfully!");
+      router.push(`/influencer/opportunities`);
+    }, 2000);
   }, [
+    state.formData,
+    state.showMoreDetails,
     validateForm,
-    personalName,
+    setFormErrors,
+    showToastMessage,
+    router,
+    login,
     initialContactInfo,
     initialIsPhoneNumber,
     secondaryContactInfo,
-    selectedInterests,
-    gender,
-    age,
-    beneficiaryName,
-    bankName,
-    ibanNumber,
-    selectedPlatforms,
-    showMoreDetails,
-    router,
+    personalNameFromRegister,
   ]);
 
+  // Expose state and handlers to consuming component
   return {
-    personalName,
-    initialContactInfo,
-    initialIsPhoneNumber,
-    secondaryContactInfo,
-    selectedInterests,
-    gender,
-    age,
-    beneficiaryName,
-    bankName,
-    ibanNumber,
-    selectedPlatforms,
-    showMoreDetails,
-    errors,
-    loading,
-    availableInterests: AVAILABLE_INTERESTS,
-    socialMediaPlatforms: SOCIAL_MEDIA_PLATFORMS,
+    ...state,
+    handleInputChange,
     handleInterestToggle,
     handleGenderChange,
     handleAgeChange,
-    handleBeneficiaryNameChange,
-    handleBankNameChange,
-    handleIbanNumberChange,
-    handlePlatformToggle,
     toggleMoreDetails,
+    handlePlatformToggle,
     handleSubmit,
+    showToastMessage,
+    availableInterests: AVAILABLE_INTERESTS,
+    socialMediaPlatforms: SOCIAL_MEDIA_PLATFORMS,
   };
 };

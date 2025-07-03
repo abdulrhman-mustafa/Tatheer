@@ -34,7 +34,7 @@ return (
             <p className="text-sm text-place">Tatheer App</p>
         </div>
         </div>
-        <button className="relative">
+        <button className="relative md:hidden flex">
             <Image 
                 src="/notification.svg" 
                 alt="Notification Icon" 

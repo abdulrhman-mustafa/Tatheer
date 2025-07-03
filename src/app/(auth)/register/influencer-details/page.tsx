@@ -12,8 +12,26 @@ import DropDown from '@/_Components/ui/DropDown';
 import Checkbox from '@/_Components/ui/Checkbox';
 import { twMerge } from 'tailwind-merge';
 import { useInfluencerDetailsForm } from '@/hooks/useInfluencerDetailsForm';
+import { GENDER_OPTIONS, AGE_OPTIONS } from '@/constants/influencerData';
 
 export default function InfluencerDetailsPage() {
+  const {
+    formData,
+    showMoreDetails,
+    errors,
+    loading,
+    handleSubmit,
+    handleInputChange,
+    handleInterestToggle,
+    handleGenderChange,
+    handleAgeChange,
+    toggleMoreDetails,
+    handlePlatformToggle,
+    availableInterests,
+    socialMediaPlatforms,
+  } = useInfluencerDetailsForm();
+
+  // دلوقتي بنوصل للبيانات من خلال formData
   const {
     selectedInterests,
     gender,
@@ -22,31 +40,7 @@ export default function InfluencerDetailsPage() {
     bankName,
     ibanNumber,
     selectedPlatforms,
-    showMoreDetails,
-    errors,
-    loading,
-    availableInterests,
-    socialMediaPlatforms,
-    handleInterestToggle,
-    handleGenderChange,
-    handleAgeChange,
-    handleBeneficiaryNameChange,
-    handleBankNameChange,
-    handleIbanNumberChange,
-    handlePlatformToggle,
-    toggleMoreDetails,
-    handleSubmit,
-  } = useInfluencerDetailsForm();
-
-  const genderOptions = [
-    { value: 'male', label: 'Male' },
-    { value: 'female', label: 'Female' },
-  ];
-
-  const ageOptions = Array.from({ length: 70 }, (_, i) => i + 18).map((year) => ({
-    value: `${year} Y`,
-    label: `${year} Y`,
-  }));
+  } = formData;
 
   return (
     <div className="flex flex-col items-center p-4 text-secondary">
@@ -84,8 +78,8 @@ export default function InfluencerDetailsPage() {
             label="Gender*"
             name="gender"
             value={gender}
-            onChange={handleGenderChange}
-            options={genderOptions}
+            onChange={(e) => handleGenderChange(e.target.value)}
+            options={GENDER_OPTIONS}
             placeholder="Male"
             error={errors.gender}
           />
@@ -95,8 +89,8 @@ export default function InfluencerDetailsPage() {
             label="Age*"
             name="age"
             value={age}
-            onChange={handleAgeChange}
-            options={ageOptions}
+            onChange={(e) => handleAgeChange(e.target.value)}
+            options={AGE_OPTIONS}
             placeholder="20 Y"
             error={errors.age}
           />
@@ -128,7 +122,7 @@ export default function InfluencerDetailsPage() {
                 label="Beneficiary Name"
                 placeholder="Beneficiary Name"
                 value={beneficiaryName}
-                onChange={handleBeneficiaryNameChange}
+                onChange={handleInputChange} // استخدام handleInputChange العامة
                 error={errors.beneficiaryName}
               />
 
@@ -139,7 +133,7 @@ export default function InfluencerDetailsPage() {
                 label="Bank Name"
                 placeholder="Bank Name"
                 value={bankName}
-                onChange={handleBankNameChange}
+                onChange={handleInputChange} // استخدام handleInputChange العامة
                 error={errors.bankName}
               />
 
@@ -150,7 +144,7 @@ export default function InfluencerDetailsPage() {
                 label="IBAN Number"
                 placeholder="IBAN Number"
                 value={ibanNumber}
-                onChange={handleIbanNumberChange}
+                onChange={handleInputChange} // استخدام handleInputChange العامة
                 error={errors.ibanNumber}
               />
 

@@ -18,7 +18,7 @@ return (
     <div className="container mx-auto flex flex-col items-center space-y-8">
     <div className="logo">
         <Link href="/">
-        <Image src="/logo.svg" alt="Your App Logo" width={40} height={40} />
+        <Image src="/icons/logo.svg" alt="Your App Logo" width={40} height={40} />
         </Link>
     </div>
 
