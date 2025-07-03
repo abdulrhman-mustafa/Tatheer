@@ -68,7 +68,7 @@ return (
         >
             {/* Icon */}
             <Image
-                    src={iconSrc || "/IconWrapper.png"}
+                    src={iconSrc || "/IconWrapper.svg"}
                     alt="Modal Icon"
                     className='mx-auto'
                     width={64}

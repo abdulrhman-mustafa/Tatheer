@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 const lexend = Lexend({
   subsets: ['latin'],
   weight: ['400', '500', '700', '900'],
+  preload: true,
 });
 
 export default function RootLayout({

@@ -7,41 +7,12 @@ import React from "react";
 import Button from "@/_Components/ui/Button";
 import { useRouter, usePathname } from "next/navigation";
 import { twMerge } from "tailwind-merge";
-<<<<<<< HEAD
-=======
 import { useHeaderLinks } from "@/hooks/useHeaderLinks";
 import { useAuth } from "@/context/AuthContext";
->>>>>>> dc5882a (create the header)
 
 export const Header = () => {
   const router = useRouter();
   const pathname = usePathname();
-<<<<<<< HEAD
-
-  const isLandingPage = pathname === '/';
-  const navLinkClasses = `text-place hover:text-secondary font-medium transition-colors duration-200`;
-
-  return (
-    <header
-      className={twMerge(
-        "py-4 px-4 md:px-10 flex items-center justify-between",
-        !isLandingPage && "hidden md:flex"
-      )}
-    >
-      {/* left side */}
-      <div className="flex items-center space-x-8">
-        <div className="logo">
-          <Link href="/">
-            <Image
-              src="/icons/logo.svg"
-              alt="Your App Logo"
-              width={40}
-              height={40}
-              onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/40x40/E2E8F0/A0AEC0?text=LOGO`; }}
-            />
-          </Link>
-        </div>
-=======
   const { isAuthenticated, isLoadingAuth, userRole } = useAuth(); 
 
   const links = useHeaderLinks();
@@ -57,42 +28,22 @@ export const Header = () => {
     console.log("isAuthenticated:", isAuthenticated);
   return (
     <header className={twMerge("py-4 px-4 md:px-10 flex items-center justify-between",!isLandingPage && "hidden md:flex")}>
-      <div>
+      <div className="flex items-center">
         <Link href={isAuthenticated && userRole ? (userRole === 'influencer' ? "/influencer/opportunities" : "/advertiser/campaigns") : "/"}>
           <Image
             src="/icons/logo.svg"
             alt="Your App Logo"
             width={40}
             height={40}
+            className="w-auto h-auto object-contain"
             onError={(e) => {
               (e.target as HTMLImageElement).src =
                 "https://placehold.co/40x40/E2E8F0/A0AEC0?text=LOGO";
             }}
           />
         </Link>
->>>>>>> dc5882a (create the header)
       </div>
       <nav className="hidden md:flex items-center space-x-8">
-<<<<<<< HEAD
-        <Link href="/" className={twMerge(navLinkClasses, pathname === '/' ? 'text-secondary' : '')}>
-          Home
-        </Link>
-
-        <Link href="/#about-us" className={navLinkClasses}>
-          About Us
-        </Link>
-
-        <Link href="/#influencers-section" className={navLinkClasses}>
-          Influencers
-        </Link>
-        <Link href="/#opinions" className={navLinkClasses}>
-          Opinions
-        </Link>
-
-        {isAuthenticated && userType === "advertiser" && (
-          <Link href="/advertiser/campaigns" className={twMerge(navLinkClasses, pathname.startsWith('/advertiser/campaigns') ? 'text-secondary' : '')}>
-            Campaigns
-=======
         {links.map((link) => (
           <Link
             key={link.href}
@@ -103,7 +54,6 @@ export const Header = () => {
             )}
           >
             {link.label}
->>>>>>> dc5882a (create the header)
           </Link>
         ))}
       </nav>
@@ -118,7 +68,3 @@ export const Header = () => {
 };
 
 export default Header;
-<<<<<<< HEAD
-=======
-
->>>>>>> dc5882a (create the header)
