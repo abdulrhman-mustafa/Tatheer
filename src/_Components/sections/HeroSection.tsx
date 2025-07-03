@@ -10,7 +10,6 @@ const HeroSection = () => {
           alt="layer Image"
           width={120}
           height={120}
-          priority
         />
         <Image
           className="absolute hidden w-auto h-auto lg:block lg:left-[60%] top-16  object-contain"
@@ -18,7 +17,6 @@ const HeroSection = () => {
           alt="layer Image"
           width={80}
           height={80}
-          priority
         />
         {/* TEXT CONTAINER */}
         <div className="content flex-1 flex justify-center flex-col gap-8 max-w-[650px]">
@@ -34,7 +32,6 @@ const HeroSection = () => {
             alt="layer Image"
             width={600}
             height={600}
-            priority
           />
           <Image
             className="w-full h-auto object-contain max-h-[700px]"
@@ -42,7 +39,8 @@ const HeroSection = () => {
             alt="person Image"
             width={700}
             height={700}
-            priority
+            priority={true}
+            fetchPriority='high'
           />
           <Image 
             src="/Rectangle2.svg"
@@ -50,7 +48,6 @@ const HeroSection = () => {
             width={10}
             height={10}
             className="absolute w-auto h-auto top-24 xl:top-28 xl:left-28"
-            priority
           />
           <Image 
             src="/Rectangle3.svg"
@@ -58,7 +55,6 @@ const HeroSection = () => {
             width={15}
             height={15}
             className="absolute w-auto h-auto top-0 xl:top-14 left-56"
-            priority
 
           />
           <Image 
@@ -67,7 +63,6 @@ const HeroSection = () => {
             width={15}
             height={15}
             className="absolute w-auto h-auto top-48 xl:top-24 right-0 xl:right-36"
-            priority
           />
         </div>
       </div>

@@ -28,7 +28,7 @@ export const FooterSection: React.FC = () => {
           </Link>
         </div>
 
-        <nav className="flex flex-wrap justify-center gap-x-8 gap-y-2 mb-6">
+        <nav className="flex flex-wrap justify-center gap-x-4 md:gap-x-8 gap-y-2 mb-6">
           <Link href="/" className={`${baseClasses} text-white`}>
             Home
           </Link>
