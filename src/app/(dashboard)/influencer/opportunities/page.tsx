@@ -48,7 +48,7 @@ export default function InfluencerOpportunitiesPage() {
   );
 
   return (
-    <div className="flex flex-col min-h-screen text-secondary pb-16 md:pb-0">
+    <div className="p-4 flex flex-col min-h-screen text-secondary pb-16 md:pb-0">
       <div className="md:flex md:items-center">
         <DashboardHeader
           userName={user.name}
@@ -63,7 +63,7 @@ export default function InfluencerOpportunitiesPage() {
       </div>
       
 
-      <div className="p-4 space-y-6 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 md:space-y-0">
+      <div className="mt-5 space-y-6 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 md:space-y-0">
         {filteredCampaigns.map((campaign) => {
           const advertiserData = getAdvertiserData(campaign.advertiserId);
           return (
