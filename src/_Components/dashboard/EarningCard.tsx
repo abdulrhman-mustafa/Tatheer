@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Button from '@/_Components/ui/Button';
 import { twMerge } from 'tailwind-merge';
 import { EarningCardData } from '@/types/earning';
+import { useAuth } from '@/context/AuthContext';
 
 interface EarningCardProps extends EarningCardData {
   onWithdrawalRequest: (earningId: string) => void;
@@ -27,6 +28,11 @@ const EarningCard: React.FC<EarningCardProps> = ({
   isSelected,
   onSelect,
 }) => {
+
+  const { userRole } = useAuth();
+
+
+  const isInfluencer = userRole === 'influencer';
   return (
     <div className="flex flex-col">
       <div
@@ -92,23 +98,25 @@ const EarningCard: React.FC<EarningCardProps> = ({
         </div>
       </div> 
 
-      <div className="mt-4">
-        <Button
-          onClick={(e) => {
-            e.stopPropagation();
-            onWithdrawalRequest(id);
-          }}
-          size='medium'
-          variant={isWithdrawalPossible ? 'primary' : 'ghost'}
-          className={twMerge(
-            "w-full",
-            !isWithdrawalPossible && "bg-gray-300 text-gray-600 cursor-not-allowed"
-          )}
-          disabled={!isWithdrawalPossible}
-        >
-          {isWithdrawalPossible ? 'Withdrawal Request' : 'Withdrawal Request/Over $100'}
-        </Button>
-      </div>
+      {isInfluencer && (
+        <div className="mt-4">
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              onWithdrawalRequest(id);
+            }}
+            size='medium'
+            variant={isWithdrawalPossible ? 'primary' : 'ghost'}
+            className={twMerge(
+              "w-full",
+              !isWithdrawalPossible && "bg-gray-300 text-gray-600 cursor-not-allowed"
+            )}
+            disabled={!isWithdrawalPossible}
+          >
+            {isWithdrawalPossible ? 'Withdrawal Request' : 'Withdrawal Request/Over $100'}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

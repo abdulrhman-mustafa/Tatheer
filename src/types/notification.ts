@@ -1,13 +1,11 @@
 // src/types/notification.ts
 
-export type NotificationType = 'new_campaign' | 'application_status' | 'payment_received' | 'message';
-
-export interface Notification {
+export interface theNotifications {
     id: string;
     userId: string;
-    type: NotificationType;
+    type: string;
     message: string;
-    isRead: boolean;
+    isRead: boolean; 
     timestamp: string;
     link?: string;
 }

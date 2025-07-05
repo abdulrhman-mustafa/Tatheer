@@ -110,14 +110,12 @@ export default function InfluencerEarningsPage() {
         <DashboardHeader
           userName={user.name}
           userAvatarUrl={user.avatarUrl || '/avatar.svg'}
-          notificationsCount={user.notifications ?? 0}
         />
         <SearchBar
           placeholder="Search"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className='md:w-full'
-          notificationsCount={user.notifications ?? 0}
         />
       </div>
 

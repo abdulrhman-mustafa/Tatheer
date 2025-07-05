@@ -106,7 +106,6 @@ export default function SettingsPage() {
           <Back />
           <h1 className="text-xl font-medium text-center flex-grow">Profile</h1>
         </div>
-
         {/* Settings Options List */}
         <div className="flex-1">
           <div>
@@ -208,10 +207,9 @@ export default function SettingsPage() {
 
       {/* Desktop View */}
       <div className="hidden md:block p-4">
-        {/* Desktop Header for this section */}
-        <h2 className="hidden md:block text-xl font-bold p-4">Settings</h2>{" "}
-        {/* غيرت العنوان لـ Settings */}
-        {/* Main Content Area */}
+
+        <h2 className="hidden md:block text-xl font-bold p-4">Settings</h2>
+
         <div className="p-4 space-y-4">
           {/* Language Selection */}
           <div className="flex items-center justify-between pb-4">

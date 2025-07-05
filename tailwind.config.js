@@ -17,7 +17,7 @@ module.exports = {
       },
 
       fontFamily: {
-        lexend: ['var(--font-lexend)', 'sans-serif'],
+        lexend: ['var(--font-lexend)'],
       },
       borderRadius: {
         'sm': '12px',

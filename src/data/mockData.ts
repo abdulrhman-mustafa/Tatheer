@@ -2,8 +2,8 @@
 
 import { User, InfluencerProfile, AdvertiserProfile } from '@/types/user';
 import { Campaign } from '@/types/campaign';
-import { Transaction } from '@/types/transaction';
-import { Notification } from '@/types/notification';
+import { TransactionData } from '@/types/index';
+import { theNotifications } from '@/types/notification';
 
 export const mockUsers: (User | InfluencerProfile | AdvertiserProfile)[] = [
     {
@@ -171,13 +171,13 @@ export const mockCampaigns: Campaign[] = [
     },
 ];
 
-export const mockTransactions: Transaction[] = [
-    { id: 'trans-1', userId: 'user-1', amount: 1000, type: 'deposit', date: '2024-06-20', status: 'completed' },
-    { id: 'trans-2', userId: 'user-2', amount: 500, type: 'campaign_payment', date: '2024-06-25', status: 'pending', campaignId: 'camp-1' },
-    { id: 'trans-3', userId: 'user-3', amount: 300, type: 'campaign_earning', date: '2024-06-26', status: 'completed', campaignId: 'camp-2' },
+export const mockTransactions: TransactionData[] = [
+    { id: 'trans-1', userId: 'user-1', amount: 1000, type: 'deposit', date: '2024-06-25T10:00:00Z', status: 'completed', description: 'Deposit to wallet' },
+    { id: 'trans-2', userId: 'user-2', amount: 500, type: 'withdrawal', date: '2024-06-24T15:30:00Z', status: 'pending', description: 'Withdrawal from wallet' },
+    { id: 'trans-3', userId: 'user-3', amount: 200, type: 'campaign_earning', date: '2024-06-26T11:00:00Z', status: 'completed', description: 'Campaign Earning' },
 ];
 
-export const mockNotifications: Notification[] = [
+export const mockNotifications: theNotifications[] = [
     { id: 'notif-1', userId: 'user-1', type: 'new_campaign', message: 'New campaign available: Summer Collection Launch!', isRead: false, timestamp: '2024-06-25T10:00:00Z', link: '/opportunities/camp-1' },
     { id: 'notif-2', userId: 'user-2', type: 'application_status', message: 'Influencer John Doe applied to your "Beauty Plus Care Package" campaign.', isRead: true, timestamp: '2024-06-24T15:30:00Z', link: '/campaigns/camp-1' },
     { id: 'notif-3', userId: 'user-3', type: 'payment_received', message: 'You received a payment of $300 for AlBaik Crispy Chicken.', isRead: false, timestamp: '2024-06-26T11:00:00Z', link: '/earnings' },

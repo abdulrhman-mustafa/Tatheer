@@ -8,7 +8,6 @@ import Back from '@/_Components/auth/Back';
 import Input from '@/_Components/ui/Input';
 import Button from '@/_Components/ui/Button';
 import ContactInputField from '@/_Components/auth/ContactInputField';
-import Image from "next/image";
 
 import { mockUsers } from '@/data/mockData';
 import { InfluencerProfile } from '@/types/user';
@@ -129,31 +128,8 @@ export default function EditProfilePage() {
         <h1 className="text-xl font-medium text-center flex-grow">Edit Profile</h1>
       </div>
 
-      <div className="hidden md:flex items-center justify-between pb-5">
+      <div className="hidden md:block pb-5">
         <h1 className="text-xl font-semibold">Personal Information</h1>
-        <Button
-          type="button"
-          variant="outline"
-          size="small"
-          onClick={() => {
-            setIsPhoneNumberInput(prev => !prev);
-            setErrorMessage("");
-            if (isPhoneNumberInput) {
-              setEmail("");
-            } else {
-              setPhoneNumber("");
-            }
-          }}
-        >
-          Edit
-          <Image
-            src="/edit.svg"
-            alt="Edit"
-            width={16}
-            height={16}
-            onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/16x16/E2E8F0/A0AEC0?text=E`; }}
-          />
-        </Button>
       </div>
 
       <form onSubmit={handleSubmit} className="max-md:space-y-6 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-10">
@@ -178,11 +154,14 @@ export default function EditProfilePage() {
           }
         />
 
-        {errorMessage && (
-          <p className="text-red-500 text-xs italic mt-2 text-center col-span-full">
-            {errorMessage}
-          </p>
-        )}
+        <Input
+          id="email"
+          label="Email Address"
+          type="text"
+          placeholder="Address"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
         <Button
           type="submit"

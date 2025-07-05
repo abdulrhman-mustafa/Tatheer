@@ -42,7 +42,7 @@ if (currentMessage.trim()) {
 };
 
 return (
-    <div className="p-4 text-secondary flex flex-col md:bg-gray-50 rounded-sm">
+    <div className="p-4 text-secondary max-md:h-screen flex flex-col md:bg-gray-50 rounded-sm">
         <div className="w-full max-w-md flex justify-between items-center mb-8 mt-4  md:hidden">
             <Back />
             <h1 className="text-lg font-medium text-center flex-grow">Technical Support</h1>
