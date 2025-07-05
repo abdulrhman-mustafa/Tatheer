@@ -28,9 +28,9 @@ const HeroSection = () => {
             <Image
               src="/icons/hero.webp"
               alt="A team collaborating on a business project"
-              width={800}
+              width={600}
               height={400}
-              className=" w-auto max-w-md md:max-w-lg lg:max-w-xl h-auto"
+              className=" w-auto md:max-w-lg lg:max-w-xl h-auto"
               priority
               fetchPriority='high'
             />
