@@ -13,6 +13,7 @@ import { AdvertiserProfile, User} from '@/types/user';
 import { timeAgo } from '@/utils/timeAgo';
 import { EarningCardData } from '@/types/earning'; 
 import DashboardHeader from '@/_Components/dashboard/DashboardHeader';
+import Analysis from '@/_Components/dashboard/Analysis';
 
 export default function InfluencerEarningsPage() {
   const pathname = usePathname();
@@ -75,7 +76,7 @@ export default function InfluencerEarningsPage() {
         description: campaign.description,
         createdAt: campaign.createdAt,
         earningCardImageUrl: campaign.earningCardImageUrl || '',
-        clickCount: Math.floor(Math.random() * 5000) + 100,
+        clickCount: Math.floor(Math.random() * 5000) + 1000,
         fixedPrice: currentFixedPrice,
         isWithdrawalPossible: currentFixedPrice >= 100,
       };
@@ -118,6 +119,13 @@ export default function InfluencerEarningsPage() {
           className='md:w-full'
         />
       </div>
+
+      <Analysis 
+        title='Your Results'
+        spending={"2.255"}
+        clickCount={100}
+        fixedPrice={100}
+      />
 
       <div className="flex-grow p-4 space-y-6 md:grid md:grid-cols-2 xl:grid-cols-3 gap-6 md:space-y-0">
         {filteredEarningsData.length > 0 ? (

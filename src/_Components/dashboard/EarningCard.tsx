@@ -84,7 +84,7 @@ const EarningCard: React.FC<EarningCardProps> = ({
         {/* Stats Section */}
         <div className="grid grid-cols-3 gap-4 py-5 w-full">
           <div className="flex flex-col items-center justify-center text-center border border-place rounded-sm px-2 py-3">
-            <span className="text-base font-bold text-secondary">{clickCount}</span>
+            <span className="text-base font-bold text-secondary">{clickCount.toLocaleString()}</span>
             <span className="text-xs text-place">Click Count</span>
           </div>
           <div className="flex flex-col items-center justify-center text-center border border-place rounded-sm px-2 py-3">
